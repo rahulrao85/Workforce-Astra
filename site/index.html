@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Astra — Employee 360 on Snowflake</title>
+<meta name="description" content="Governed Semantic Views resolve the same HR metric identically across teams — an interactive demo built for the Snowflake CoCo CLI Hackathon.">
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('theme') ??
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="govu-tokens.css">
+<style>
+  header.site {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-card); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-color);
+  }
+  header.site .brand { font-family: var(--font-heading); font-weight: 700; font-size: var(--text-lg); }
+  header.site nav { display: flex; align-items: center; gap: var(--space-4); }
+
+  .hero { text-align: center; padding-top: var(--space-8); padding-bottom: var(--space-6); }
+  .hero .tag-row { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-5); }
+  .hero p.lede { max-width: 720px; margin: 0 auto var(--space-6); color: var(--text-secondary); font-size: var(--text-lg); }
+  .hero .cta-row { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+
+  .status-banner {
+    max-width: var(--container-narrow); margin: 0 auto var(--space-8);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--warning-light); border: 1px solid var(--warning);
+    color: var(--text-primary); font-size: var(--text-sm);
+  }
+
+  .conflict-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--space-5); align-items: stretch; }
+  @media (max-width: 768px) { .conflict-grid { grid-template-columns: 1fr; } .conflict-vs { display: none; } }
+  .conflict-card { text-align: center; }
+  .conflict-card .persona { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); font-weight: 650; }
+  .conflict-card .number { font-family: var(--font-heading); font-size: var(--text-4xl); font-weight: 700; margin: var(--space-3) 0; letter-spacing: var(--tracking-tight); }
+  .conflict-card.naive .number { color: var(--danger); }
+  .conflict-card.governed .number { color: var(--success); }
+  .conflict-vs { display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-weight: 700; color: var(--text-muted); font-size: var(--text-xl); }
+  .sql-block {
+    text-align: left; font-family: var(--font-mono); font-size: var(--text-xs);
+    background: var(--bg-inset); border-radius: var(--radius-sm); padding: var(--space-4);
+    margin-top: var(--space-4); white-space: pre-wrap; word-break: break-word; color: var(--text-secondary);
+  }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
+  .chip {
+    font-family: var(--font-primary); font-size: var(--text-sm); font-weight: 600;
+    padding: 0.55rem 1.1rem; border-radius: var(--radius-full);
+    border: 1px solid var(--border-strong); background: var(--bg-secondary);
+    cursor: pointer; transition: var(--transition); color: var(--text-primary);
+  }
+  .chip:hover { border-color: var(--primary-color); color: var(--primary-color); }
+  .chip.is-active { background: var(--primary-color); color: var(--primary-contrast); border-color: var(--primary-color); }
+
+  .answer-card { min-height: 90px; }
+  .answer-card .answer-value { font-family: var(--font-heading); font-size: var(--text-3xl); color: var(--primary-color); }
+  .answer-card .answer-label { color: var(--text-secondary); font-size: var(--text-sm); margin-top: var(--space-1); }
+
+  .risk-list { display: flex; flex-direction: column; gap: var(--space-3); }
+  .risk-row { padding: var(--space-4) var(--space-5); display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+  .risk-row .meta { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+  .risk-detail { display: none; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-color); font-size: var(--text-sm); color: var(--text-secondary); }
+  .risk-row.is-selected .risk-detail { display: block; }
+  .mcp-payload { font-family: var(--font-mono); font-size: var(--text-xs); background: var(--bg-inset); border-radius: var(--radius-sm); padding: var(--space-3); margin-top: var(--space-3); white-space: pre-wrap; }
+  .mcp-sent { color: var(--success); font-weight: 650; font-size: var(--text-sm); margin-top: var(--space-2); display: none; }
+  .mcp-sent.show { display: block; }
+
+  .stack-tags { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
+
+  footer.site { border-top: 1px solid var(--border-color); padding: var(--space-8) 0; margin-top: var(--space-9); text-align: center; color: var(--text-muted); font-size: var(--text-sm); }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="brand">Workforce Astra</div>
+  <nav>
+    <a class="nav-link" href="https://github.com/rahulrao85/Workforce-Astra" target="_blank" rel="noopener">GitHub</a>
+    <button class="theme-toggle" aria-label="Toggle dark mode" onclick="toggleTheme()"></button>
+  </nav>
+</header>
+
+<section class="container container-narrow hero">
+  <div class="tag-row">
+    <span class="tag">Snowflake CoCo CLI Hackathon</span>
+    <span class="tag tag-accent">Customer 360 / Employee 360 Track</span>
+  </div>
+  <h1>One workforce.<br>One governed answer.</h1>
+  <p class="lede">
+    HR, Finance, and Engineering ask "how many employees do we have?" and get three different
+    numbers — from the exact same underlying data. Workforce Astra encodes the definition once,
+    as a governed Snowflake Semantic View, so every team gets the identical, SQL-transparent
+    answer.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="#demo">Try the live conflict below</a>
+    <a class="btn btn-secondary" href="https://github.com/rahulrao85/Workforce-Astra" target="_blank" rel="noopener">View source</a>
+  </div>
+</section>
+
+<div class="container container-narrow" style="padding-top:0;">
+  <div class="status-banner">
+    <strong>Honest status, 16-Sep-2026:</strong> everything on this page runs against the real
+    150-employee synthetic dataset committed to the repo, computed client-side in your browser
+    using the exact same governance logic defined in the project's Snowflake Semantic View
+    (see <code>sql/02_semantic_view.sql</code>). It is not a live call to Cortex Analyst — the
+    Snowflake trial account is currently blocked by a network policy pending a support ticket.
+    Once that clears, this same logic runs for real inside Snowflake via CoCo CLI.
+  </div>
+</div>
+
+<section id="demo" class="container container-narrow reveal">
+  <h2>The cold open: same question, two answers</h2>
+  <p style="color:var(--text-secondary); margin-bottom: var(--space-6);">
+    Ask "how many employees do we have?" two ways. Same 150-row dataset, same moment in time —
+    the numbers genuinely disagree, because one query is governed and one isn't.
+  </p>
+  <div class="conflict-grid">
+    <div class="card conflict-card naive">
+      <div class="persona">Finance asks (ungoverned)</div>
+      <div class="number" id="naive-number">—</div>
+      <div style="color:var(--text-secondary); font-size:var(--text-sm);">"How many people work here, including contractors?"</div>
+      <div class="sql-block" id="naive-sql"></div>
+    </div>
+    <div class="conflict-vs">VS</div>
+    <div class="card conflict-card governed">
+      <div class="persona">HRBP asks (governed)</div>
+      <div class="number" id="governed-number">—</div>
+      <div style="color:var(--text-secondary); font-size:var(--text-sm);">"How many active employees do we have?"</div>
+      <div class="sql-block" id="governed-sql"></div>
+    </div>
+  </div>
+</section>
+
+<section class="container container-narrow reveal">
+  <h2>Ask the governed Semantic View</h2>
+  <p style="color:var(--text-secondary); margin-bottom: var(--space-5);">
+    These are the 6 <code>AI_VERIFIED_QUERIES</code> registered on <code>employee_360</code>.
+    Click one — the answer and the SQL that produced it come from the real dataset, live.
+  </p>
+  <div class="chip-row" id="query-chips"></div>
+  <div class="card answer-card" id="answer-card">
+    <div class="answer-label">Pick a question above</div>
+  </div>
+  <div class="sql-block" id="answer-sql" style="display:none;"></div>
+</section>
+
+<section class="container container-narrow reveal">
+  <h2>Flight-risk evidence &amp; the closed-loop action</h2>
+  <p style="color:var(--text-secondary); margin-bottom: var(--space-5);">
+    Comp-ratio below 0.85 <em>and</em> a rating of 4 or above — underpaid high performers, the
+    real retention risk. Click a name for the cited review evidence, then simulate the action a
+    CoCo agent would take via the mock MCP server in this repo.
+  </p>
+  <div class="risk-list" id="risk-list"></div>
+</section>
+
+<section class="container container-narrow reveal">
+  <h2>What's actually running underneath</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Governed Semantic View</h3>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);">3 tables, 3 metrics, 6 verified queries. Every question resolves through <code>employee_360</code>, never raw tables.</p>
+    </div>
+    <div class="card">
+      <h3>CoCo CLI skill</h3>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);">Synthetic data generation packaged as <code>$workforce-astra-data-gen</code> — generate, verify, stage, load.</p>
+    </div>
+    <div class="card">
+      <h3>Mock MCP action server</h3>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);">Two tools — Slack manager alert, Workday comp-adjustment draft — protocol-tested with the real MCP client.</p>
+    </div>
+  </div>
+  <div class="stack-tags">
+    <span class="tag">Snowflake Semantic Views</span>
+    <span class="tag">Cortex Analyst</span>
+    <span class="tag">Cortex Search</span>
+    <span class="tag">CoCo CLI</span>
+    <span class="tag">MCP</span>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="container container-narrow">
+    Workforce Astra — built for the Snowflake CoCo CLI Hackathon (GCC Edition), 16-Sep-2026.
+    <br><a href="https://github.com/rahulrao85/Workforce-Astra" target="_blank" rel="noopener">github.com/rahulrao85/Workforce-Astra</a>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('theme', next);
+}
+
+const W = WORKFORCE_DATA.workers;
+const REVIEWS_BY_ID = Object.fromEntries(WORKFORCE_DATA.reviews.map(r => [r.employee_id, r]));
+
+function fmt(n) { return n.toLocaleString('en-IN'); }
+
+// ---- Cold open: naive vs governed headcount ----
+const naiveActive = W.filter(w => w.status === 'Active');
+const governedActive = W.filter(w => w.status === 'Active' && w.type === 'FTE');
+document.getElementById('naive-number').textContent = fmt(naiveActive.length);
+document.getElementById('governed-number').textContent = fmt(governedActive.length);
+document.getElementById('naive-sql').textContent =
+`SELECT COUNT(*) AS total_workers
+FROM raw_workday_workers
+WHERE employee_status = 'Active'`;
+document.getElementById('governed-sql').textContent =
+`SELECT headcount FROM SEMANTIC_VIEW(
+  employee_360
+  METRICS workers.headcount
+)
+-- headcount is defined to count only
+-- employee_status = 'Active' AND employment_type = 'FTE'`;
+
+// ---- Verified query chips ----
+const attritionNumerator = W.filter(w => w.status === 'Terminated' && w.type === 'FTE').length;
+const attritionDenominator = W.filter(w => w.type === 'FTE').length;
+const attritionRate = (attritionNumerator / attritionDenominator * 100).toFixed(1) + '%';
+
+function compRatioForDept(dept) {
+  const rows = W.filter(w => w.dept === dept);
+  const avg = rows.reduce((s, w) => s + w.comp_ratio, 0) / rows.length;
+  return avg.toFixed(2);
+}
+
+const flightRisk = W.filter(w => w.status === 'Active' && w.comp_ratio < 0.85 && REVIEWS_BY_ID[w.id] && REVIEWS_BY_ID[w.id].rating >= 4)
+  // Surface cases with a manager on file first -- those are the ones where
+  // "Resolve" actually has somewhere to send the notification.
+  .sort((a, b) => (b.manager_slack_id ? 1 : 0) - (a.manager_slack_id ? 1 : 0));
+
+const QUERIES = [
+  {
+    label: 'Governed headcount',
+    question: 'How many active employees do we have?',
+    answer: () => `${fmt(governedActive.length)} employees`,
+    sql: `SELECT headcount FROM SEMANTIC_VIEW(\n  employee_360\n  METRICS workers.headcount\n)`,
+  },
+  {
+    label: 'Naive headcount',
+    question: 'How many people work here including contractors?',
+    answer: () => `${fmt(naiveActive.length)} people`,
+    sql: `SELECT COUNT(*) AS total_workers\nFROM raw_workday_workers\nWHERE employee_status = 'Active'`,
+  },
+  {
+    label: 'Attrition rate',
+    question: 'What is our attrition rate this year?',
+    answer: () => attritionRate,
+    sql: `SELECT attrition_velocity FROM SEMANTIC_VIEW(\n  employee_360\n  METRICS workers.attrition_velocity\n)`,
+  },
+  {
+    label: 'Comp-ratio: Engineering',
+    question: 'What is the comp-ratio for Engineering?',
+    answer: () => compRatioForDept('Engineering'),
+    sql: `SELECT comp_ratio FROM SEMANTIC_VIEW(\n  employee_360\n  DIMENSIONS workers.department_code\n  METRICS workers.comp_ratio\n) WHERE department_code = 'Engineering'`,
+  },
+  {
+    label: 'Flight-risk candidates',
+    question: 'Which employees have a comp-ratio below 0.85 and a rating of 4 or above?',
+    answer: () => `${flightRisk.length} employees (see list below)`,
+    sql: `SELECT w.employee_id, ROUND(w.base_pay / c.mid_point, 2) AS comp_ratio, r.rating_score\nFROM raw_workday_workers w\nJOIN raw_compensation_bands c ON w.band_code = c.band_code\nJOIN raw_performance_reviews r ON w.employee_id = r.employee_id\nWHERE w.employee_status = 'Active'\n  AND (w.base_pay / c.mid_point) < 0.85\n  AND r.rating_score >= 4`,
+  },
+  {
+    label: 'Review lookup',
+    question: 'Show me the review notes for a specific employee',
+    answer: () => flightRisk[0] ? `"${REVIEWS_BY_ID[flightRisk[0].id].text}" — ${flightRisk[0].id}` : 'no match',
+    sql: `SELECT review_text FROM raw_performance_reviews\nWHERE employee_id = '${flightRisk[0] ? flightRisk[0].id : 'EMP-0001'}'`,
+  },
+];
+
+const chipRow = document.getElementById('query-chips');
+const answerCard = document.getElementById('answer-card');
+const answerSql = document.getElementById('answer-sql');
+QUERIES.forEach((q, i) => {
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.textContent = q.label;
+  chip.onclick = () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+    chip.classList.add('is-active');
+    answerCard.innerHTML = `<div class="answer-label">${q.question}</div><div class="answer-value">${q.answer()}</div>`;
+    answerSql.style.display = 'block';
+    answerSql.textContent = q.sql;
+  };
+  chipRow.appendChild(chip);
+});
+
+// ---- Flight-risk list with simulated MCP action ----
+const riskList = document.getElementById('risk-list');
+flightRisk.slice(0, 8).forEach(w => {
+  const review = REVIEWS_BY_ID[w.id];
+  const row = document.createElement('div');
+  row.className = 'card risk-row selectable';
+  row.innerHTML = `
+    <div class="meta">
+      <strong>${w.id}</strong>
+      <span class="tag">${w.dept}</span>
+      <span class="tag">${w.band}</span>
+      <span class="tag tag-accent">comp-ratio ${w.comp_ratio}</span>
+      <span class="tag">rating ${review.rating}</span>
+    </div>
+    <button class="btn btn-secondary btn-toggle">View evidence</button>
+    <div class="risk-detail">
+      <p>&ldquo;${review.text}&rdquo;</p>
+      <button class="btn btn-primary btn-resolve">Resolve → notify manager (${w.manager_slack_id || 'no manager on file'})</button>
+      <div class="mcp-payload">${JSON.stringify({
+        tool: 'slack_notify_manager_flight_risk',
+        manager_slack_id: w.manager_slack_id || null,
+        employee_id: w.id,
+        risk_score: w.comp_ratio,
+        evidence_snippet: review.text,
+      }, null, 2)}</div>
+      <div class="mcp-sent">✓ Simulated call sent to mock MCP server schema (see mcp_server/workforce_astra_mcp.py) — no real Slack message sent.</div>
+    </div>
+  `;
+  row.querySelector('.btn-toggle').onclick = (e) => {
+    e.stopPropagation();
+    row.classList.toggle('is-selected');
+  };
+  row.querySelector('.btn-resolve').onclick = (e) => {
+    e.stopPropagation();
+    row.querySelector('.mcp-sent').classList.add('show');
+  };
+  riskList.appendChild(row);
+});
+
+// Scroll reveal
+const io = new IntersectionObserver(
+  es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')),
+  { threshold: 0.1 }
+);
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
