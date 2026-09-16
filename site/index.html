@@ -309,7 +309,7 @@ flightRisk.slice(0, 8).forEach(w => {
       <strong>${w.id}</strong>
       <span class="tag">${w.dept}</span>
       <span class="tag">${w.band}</span>
-      <span class="tag tag-accent">comp-ratio ${w.comp_ratio}</span>
+      <span class="tag tag-accent">comp-ratio ${w.comp_ratio.toFixed(2)}</span>
       <span class="tag">rating ${review.rating}</span>
     </div>
     <button class="btn btn-secondary btn-toggle">View evidence</button>
@@ -320,7 +320,7 @@ flightRisk.slice(0, 8).forEach(w => {
         tool: 'slack_notify_manager_flight_risk',
         manager_slack_id: w.manager_slack_id || null,
         employee_id: w.id,
-        risk_score: w.comp_ratio,
+        risk_score: Number(w.comp_ratio.toFixed(2)),
         evidence_snippet: review.text,
       }, null, 2)}</div>
       <div class="mcp-sent">✓ Simulated call sent to mock MCP server schema (see mcp_server/workforce_astra_mcp.py) — no real Slack message sent.</div>

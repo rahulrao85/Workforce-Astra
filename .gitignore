@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 mcp_server/calls.jsonl
+
+# Local Netlify folder
+.netlify
