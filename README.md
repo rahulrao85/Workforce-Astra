@@ -27,7 +27,14 @@ behind a flight-risk call, and a CoCo agent closes the loop with a real action.
   *(stretch, only if core workflow is solid first)* Cortex Search evidence skill → one MCP
   action (Slack manager alert or comp-adjustment draft)
 - **Explicitly cut from MVP** (roadmap only in the deck): sentiment pulses, span-of-control,
-  Streamlit-in-Snowflake UI, multi-agent orchestration
+  multi-agent orchestration
+
+## Streamlit-in-Snowflake portal -- LIVE
+`employee_360_portal/streamlit_app.py`, deployed as `WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL`:
+https://app.snowflake.com/ap-southeast-7.aws/si60728/#/streamlit-apps/WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL
+(requires Snowsight login to view -- it's an internal app, not a public URL). Header, 5 governed
+query buttons (including a side-by-side governed-vs-naive comparison), an employee directory,
+and a flight-risk browser with cited evidence and a simulated MCP resolve action.
 
 ## Files in this folder
 | File | Purpose |

@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 mcp_server/calls.jsonl
+employee_360_portal/output/
 
 # Local Netlify folder
 .netlify
