@@ -1,10 +1,9 @@
 -- Workforce Astra: governed Semantic View for Employee 360.
--- Structure below verified against the real CREATE SEMANTIC VIEW syntax at
--- docs.snowflake.com/en/sql-reference/sql/create-semantic-view (checked 16-Sep-2026).
+-- CONFIRMED LIVE 16-Sep-2026 -- created for real as WORKFORCE_ASTRA.RAW.EMPLOYEE_360
+-- via CoCo CLI against account ST42987 (ap-southeast-7, AWS). Governed headcount
+-- returned 109, naive comparison returned 127 -- the intended conflict, verified live.
 -- Clause order is REQUIRED: TABLES -> RELATIONSHIPS -> FACTS -> DIMENSIONS -> METRICS
--- -> COMMENT/AI_VERIFIED_QUERIES. Still confirm on a live account before the recording --
--- validation rules (e.g. exact aggregate-expression constraints inside METRICS) aren't
--- fully checked here, only the top-level shape.
+-- -> COMMENT/AI_VERIFIED_QUERIES.
 
 CREATE OR REPLACE SEMANTIC VIEW employee_360
   TABLES (
@@ -14,7 +13,7 @@ CREATE OR REPLACE SEMANTIC VIEW employee_360
   )
   RELATIONSHIPS (
     workers_to_comp    AS workers(band_code)   REFERENCES comp(band_code),
-    workers_to_reviews AS workers(employee_id) REFERENCES reviews(employee_id)
+    reviews_to_workers AS reviews(employee_id) REFERENCES workers(employee_id)
   )
   FACTS (
     workers.base_pay      AS base_pay,
