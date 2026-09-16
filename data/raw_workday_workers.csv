@@ -1,0 +1,151 @@
+employee_id,first_name,last_name,department_code,band_code,job_title,hire_date,employee_status,termination_date,termination_reason,employment_type,base_pay,manager_id,manager_slack_id
+EMP-0001,Mario,Hernandez,People Ops,M2,M2 Manager,2021-11-05,Active,,,FTE,2424897,,
+EMP-0002,Debra,Jones,Engineering,M1,M1 Manager,2024-01-03,Active,,,FTE,1523668,,
+EMP-0003,Amanda,Diaz,Sales,M1,M1 Manager,2023-11-06,Active,,,FTE,1300497,,
+EMP-0004,Brian,Romero,Engineering,M2,M2 Manager,2023-05-07,Active,,,FTE,2031036,,
+EMP-0005,Benjamin,Hamilton,Customer Success,M2,M2 Manager,2021-05-02,Active,,,FTE,1918849,,
+EMP-0006,Chad,Davis,Customer Success,M1,M1 Manager,2024-07-15,Active,,,FTE,1919442,,
+EMP-0007,Roger,Serrano,Sales,M2,M2 Manager,2021-04-12,Active,,,FTE,1844719,,
+EMP-0008,David,Walker,People Ops,M1,M1 Manager,2022-08-17,Active,,,FTE,1373093,,
+EMP-0009,Courtney,Meza,Finance,M1,M1 Manager,2024-03-15,Active,,,FTE,1655974,,
+EMP-0010,Barbara,Sanders,Customer Success,M1,M1 Manager,2021-07-31,Active,,,FTE,1663418,,
+EMP-0011,Theresa,Williams,Engineering,M1,M1 Manager,2023-02-02,Active,,,FTE,1647466,,
+EMP-0012,Michele,Roberts,Engineering,M1,M1 Manager,2024-03-01,Active,,,FTE,1695926,,
+EMP-0013,Drew,Wilson,Customer Success,M2,M2 Manager,2024-10-25,Active,,,FTE,2210488,,
+EMP-0014,Kyle,Cabrera,Customer Success,M2,M2 Manager,2023-08-12,Active,,,FTE,2686503,,
+EMP-0015,Henry,Perkins,Sales,M2,M2 Manager,2022-09-06,Active,,,FTE,2562604,,
+EMP-0016,Danielle,Watson,Finance,IC4,IC4 Specialist,2023-10-11,Active,,,Contractor,1208393,EMP-0015,U0015
+EMP-0017,Amy,Brown,People Ops,M2,M2 Manager,2023-05-07,Terminated,2024-08-06,Involuntary,FTE,2204830,EMP-0003,U0003
+EMP-0018,Brian,Harris,Finance,IC3,IC3 Specialist,2022-10-05,Active,,,FTE,853802,EMP-0006,U0006
+EMP-0019,Erin,Patterson,Engineering,M1,M1 Manager,2022-07-07,Terminated,2025-07-01,Involuntary,Contractor,1772188,EMP-0002,U0002
+EMP-0020,Lee,Richards,People Ops,IC5,IC5 Specialist,2023-07-02,Active,,,FTE,1688723,EMP-0005,U0005
+EMP-0021,Shawn,Evans,Sales,M1,M1 Manager,2023-10-09,Active,,,FTE,1797398,EMP-0001,U0001
+EMP-0022,Laura,Hale,Sales,IC4,IC4 Analyst,2023-10-14,Active,,,FTE,1183855,EMP-0002,U0002
+EMP-0023,John,Andrews,People Ops,IC5,IC5 Analyst,2024-02-01,Active,,,FTE,1943869,EMP-0005,U0005
+EMP-0024,Alicia,Golden,Sales,M1,M1 Manager,2021-12-27,Active,,,FTE,1722791,EMP-0003,U0003
+EMP-0025,Jessica,Roberts,Engineering,IC3,IC3 Engineer,2022-06-23,Active,,,FTE,825820,EMP-0005,U0005
+EMP-0026,Tina,Wilson,Customer Success,IC5,IC5 Specialist,2021-09-15,Active,,,FTE,1922774,EMP-0012,U0012
+EMP-0027,Robert,Sherman,Customer Success,IC3,IC3 Analyst,2024-10-25,Active,,,FTE,818305,EMP-0013,U0013
+EMP-0028,Edwin,Burns,Engineering,M1,M1 Manager,2021-05-08,Active,,,Contractor,1944573,EMP-0004,U0004
+EMP-0029,Benjamin,Barnett,Engineering,M1,M1 Manager,2021-04-18,Active,,,FTE,1660412,EMP-0002,U0002
+EMP-0030,Kathy,Berry,Sales,M2,M2 Manager,2021-02-22,Active,,,Contractor,2389506,EMP-0002,U0002
+EMP-0031,Nancy,Edwards,People Ops,IC4,IC4 Engineer,2024-05-18,Active,,,FTE,1034983,EMP-0006,U0006
+EMP-0032,Heather,Wheeler,Engineering,M1,M1 Manager,2023-09-18,Active,,,FTE,1372999,EMP-0005,U0005
+EMP-0033,Bethany,Bryant,Engineering,IC5,IC5 Engineer,2021-11-27,Active,,,FTE,2147749,EMP-0009,U0009
+EMP-0034,Mary,Duffy,Customer Success,M2,M2 Manager,2021-02-25,Active,,,FTE,2086166,EMP-0013,U0013
+EMP-0035,Thomas,Beck,Sales,IC3,IC3 Analyst,2023-01-22,Active,,,FTE,952897,EMP-0015,U0015
+EMP-0036,Bruce,Miles,Customer Success,M2,M2 Manager,2024-07-27,Active,,,FTE,2579050,EMP-0004,U0004
+EMP-0037,Deborah,Kaiser,Customer Success,IC4,IC4 Analyst,2022-04-10,Active,,,FTE,1159892,EMP-0004,U0004
+EMP-0038,Lynn,Mitchell,Sales,IC3,IC3 Specialist,2023-08-26,Active,,,FTE,892850,EMP-0005,U0005
+EMP-0039,Paul,Barnett,Engineering,IC5,IC5 Engineer,2022-12-17,Active,,,FTE,1502639,EMP-0006,U0006
+EMP-0040,Andrew,Murray,Customer Success,M1,M1 Manager,2024-07-02,Active,,,FTE,1846496,EMP-0015,U0015
+EMP-0041,Gary,Wilson,Engineering,M1,M1 Manager,2024-08-10,Active,,,FTE,1893648,EMP-0002,U0002
+EMP-0042,Brian,Tate,Engineering,IC4,IC4 Specialist,2024-07-26,Active,,,FTE,1180836,EMP-0006,U0006
+EMP-0043,David,Wright,Sales,M1,M1 Manager,2021-11-22,Terminated,2023-03-05,Retirement,FTE,1676752,EMP-0001,U0001
+EMP-0044,Peter,Savage,Finance,M1,M1 Manager,2024-05-05,Active,,,FTE,1381020,EMP-0008,U0008
+EMP-0045,Christopher,Cole,Sales,M2,M2 Manager,2024-08-23,Terminated,2025-07-19,Voluntary,Contractor,2216457,EMP-0015,U0015
+EMP-0046,Andrea,Ware,Finance,IC4,IC4 Specialist,2022-05-31,Active,,,FTE,1100080,EMP-0004,U0004
+EMP-0047,Lori,Shields,Finance,M2,M2 Manager,2021-09-26,Active,,,FTE,2661795,EMP-0001,U0001
+EMP-0048,Joshua,Perry,Customer Success,M2,M2 Manager,2023-10-25,Active,,,FTE,1945762,EMP-0003,U0003
+EMP-0049,Michael,Henson,Engineering,M2,M2 Manager,2022-01-11,Active,,,Contractor,2544997,EMP-0010,U0010
+EMP-0050,Susan,Hernandez,Engineering,IC4,IC4 Analyst,2021-09-04,Active,,,FTE,1329812,EMP-0009,U0009
+EMP-0051,Gregory,Hall,Customer Success,M2,M2 Manager,2021-08-06,Active,,,FTE,1854549,EMP-0015,U0015
+EMP-0052,Jesus,Washington,Customer Success,IC4,IC4 Engineer,2023-11-06,Active,,,FTE,1370196,EMP-0008,U0008
+EMP-0053,Brianna,Baker,Customer Success,IC3,IC3 Engineer,2023-11-02,Active,,,FTE,924383,EMP-0010,U0010
+EMP-0054,Adam,Barnes,Customer Success,M1,M1 Manager,2023-11-06,Active,,,FTE,1871044,EMP-0004,U0004
+EMP-0055,Mike,Knight,People Ops,IC5,IC5 Engineer,2022-02-19,Active,,,FTE,1741644,EMP-0014,U0014
+EMP-0056,Stephanie,Vaughn,Finance,M1,M1 Manager,2022-05-08,Terminated,2025-01-29,Voluntary,FTE,1808076,EMP-0011,U0011
+EMP-0057,Zachary,Williamson,Finance,IC4,IC4 Engineer,2023-01-20,Active,,,FTE,1478123,EMP-0003,U0003
+EMP-0058,Erica,Brown,Sales,IC4,IC4 Engineer,2023-09-25,Terminated,2024-12-21,Retirement,FTE,1342288,EMP-0014,U0014
+EMP-0059,Rachel,Deleon,Engineering,M2,M2 Manager,2023-01-01,Active,,,FTE,2493264,EMP-0006,U0006
+EMP-0060,Nancy,Yates,Finance,IC3,IC3 Specialist,2021-02-07,Active,,,FTE,899613,EMP-0007,U0007
+EMP-0061,Philip,Ross,Engineering,M2,M2 Manager,2022-04-14,Terminated,2023-03-14,Voluntary,FTE,2669662,EMP-0005,U0005
+EMP-0062,Dale,Walters,Finance,IC4,IC4 Analyst,2023-05-15,Active,,,FTE,1052671,EMP-0014,U0014
+EMP-0063,Bryan,Jones,Engineering,M2,M2 Manager,2021-07-03,Active,,,FTE,2567604,EMP-0005,U0005
+EMP-0064,Jason,Martin,Customer Success,IC4,IC4 Engineer,2021-02-04,Terminated,2021-12-02,Involuntary,FTE,1009643,EMP-0002,U0002
+EMP-0065,Matthew,Williams,Finance,IC3,IC3 Specialist,2024-02-07,Active,,,FTE,721520,EMP-0007,U0007
+EMP-0066,Aaron,Hernandez,Engineering,M2,M2 Manager,2021-11-27,Active,,,FTE,1973900,EMP-0005,U0005
+EMP-0067,Craig,Cox,People Ops,IC5,IC5 Specialist,2022-02-26,Active,,,FTE,1935839,EMP-0005,U0005
+EMP-0068,Anthony,Sawyer,Customer Success,IC5,IC5 Specialist,2022-05-28,Terminated,2022-12-09,Voluntary,FTE,2168319,EMP-0012,U0012
+EMP-0069,Christina,Hernandez,People Ops,M2,M2 Manager,2021-08-06,Active,,,FTE,2430249,EMP-0011,U0011
+EMP-0070,Johnny,Reed,Sales,M2,M2 Manager,2023-11-04,Active,,,FTE,2743142,EMP-0005,U0005
+EMP-0071,Michael,Martinez,People Ops,IC5,IC5 Analyst,2024-07-26,Active,,,FTE,2171230,EMP-0003,U0003
+EMP-0072,Melinda,Kaiser,Sales,IC4,IC4 Engineer,2022-06-08,Active,,,Contractor,1018932,EMP-0007,U0007
+EMP-0073,Steven,Webb,Sales,M1,M1 Manager,2022-08-01,Active,,,FTE,1746026,EMP-0010,U0010
+EMP-0074,Christopher,Garcia,Finance,IC3,IC3 Analyst,2023-07-03,Active,,,FTE,1021243,EMP-0001,U0001
+EMP-0075,Matthew,Baker,Finance,M2,M2 Manager,2022-09-26,Terminated,2024-04-14,Voluntary,FTE,2166361,EMP-0001,U0001
+EMP-0076,Maria,Martin,Engineering,M1,M1 Manager,2022-05-24,Active,,,FTE,1336779,EMP-0009,U0009
+EMP-0077,Andrew,Tapia,Finance,IC3,IC3 Analyst,2023-03-18,Active,,,Contractor,901681,EMP-0001,U0001
+EMP-0078,Allison,Thomas,Customer Success,IC3,IC3 Analyst,2021-11-14,Active,,,FTE,950152,EMP-0011,U0011
+EMP-0079,Amy,Johnson,Engineering,M1,M1 Manager,2024-08-10,Active,,,Contractor,1835902,EMP-0003,U0003
+EMP-0080,Allison,Good,Customer Success,M2,M2 Manager,2023-11-02,Active,,,FTE,2522752,EMP-0003,U0003
+EMP-0081,Michelle,Horton,Sales,M2,M2 Manager,2024-04-11,Active,,,FTE,1881688,EMP-0013,U0013
+EMP-0082,Jose,Richardson,People Ops,IC3,IC3 Specialist,2021-08-03,Active,,,Contractor,693280,EMP-0007,U0007
+EMP-0083,Gary,Ingram,Engineering,IC3,IC3 Analyst,2023-09-30,Active,,,FTE,962171,EMP-0005,U0005
+EMP-0084,Amanda,Maxwell,Finance,M2,M2 Manager,2023-12-14,Terminated,2024-08-25,Involuntary,FTE,2576850,EMP-0008,U0008
+EMP-0085,Mark,Walker,People Ops,IC5,IC5 Analyst,2022-04-18,Active,,,FTE,2067603,EMP-0012,U0012
+EMP-0086,Lisa,Mercer,Sales,IC3,IC3 Engineer,2021-04-06,Active,,,FTE,890893,EMP-0010,U0010
+EMP-0087,Melissa,Shaffer,Customer Success,IC5,IC5 Engineer,2022-09-16,Active,,,FTE,1434476,EMP-0010,U0010
+EMP-0088,Loretta,Singh,Sales,IC3,IC3 Specialist,2021-07-23,Active,,,FTE,851261,EMP-0012,U0012
+EMP-0089,Jeremy,Holmes,Customer Success,M2,M2 Manager,2021-08-31,Active,,,FTE,1991280,EMP-0015,U0015
+EMP-0090,Michael,Johnson,Finance,IC3,IC3 Analyst,2023-07-29,Terminated,2024-04-30,Involuntary,FTE,750541,EMP-0008,U0008
+EMP-0091,Anthony,Ramirez,Customer Success,IC4,IC4 Specialist,2023-12-10,Terminated,2025-09-26,Retirement,Contractor,1239547,EMP-0003,U0003
+EMP-0092,Jonathon,Schwartz,Engineering,IC3,IC3 Engineer,2023-09-23,Active,,,FTE,676292,EMP-0007,U0007
+EMP-0093,Sue,West,Finance,M1,M1 Manager,2021-10-16,Active,,,FTE,1530752,EMP-0007,U0007
+EMP-0094,Sharon,Travis,Sales,IC3,IC3 Specialist,2022-11-24,Terminated,2025-06-16,Voluntary,FTE,679219,EMP-0015,U0015
+EMP-0095,Stephanie,Diaz,Finance,IC5,IC5 Engineer,2023-03-11,Terminated,2023-12-12,Voluntary,FTE,1638284,EMP-0007,U0007
+EMP-0096,Jeffrey,Perez,Finance,IC3,IC3 Analyst,2021-11-01,Active,,,FTE,858946,EMP-0004,U0004
+EMP-0097,James,Harris,Engineering,IC4,IC4 Specialist,2023-05-27,Active,,,FTE,1183021,EMP-0015,U0015
+EMP-0098,Claire,Mccullough,People Ops,M2,M2 Manager,2021-04-12,Active,,,FTE,2232826,EMP-0015,U0015
+EMP-0099,Mary,Mendoza,Customer Success,IC4,IC4 Engineer,2021-04-11,Active,,,FTE,1063796,EMP-0015,U0015
+EMP-0100,Denise,Marsh,People Ops,M1,M1 Manager,2024-08-29,Active,,,FTE,1721076,EMP-0005,U0005
+EMP-0101,Christopher,Guerrero,Sales,IC5,IC5 Engineer,2021-09-03,Active,,,FTE,1582983,EMP-0003,U0003
+EMP-0102,Renee,Casey,People Ops,M1,M1 Manager,2022-11-13,Active,,,FTE,1565647,EMP-0013,U0013
+EMP-0103,Karen,Woods,Finance,M2,M2 Manager,2022-12-02,Terminated,2023-10-04,Voluntary,FTE,2576984,EMP-0006,U0006
+EMP-0104,Gregory,Mccormick,People Ops,IC4,IC4 Specialist,2023-04-26,Active,,,FTE,1247567,EMP-0007,U0007
+EMP-0105,Marvin,Owen,Customer Success,M1,M1 Manager,2023-10-18,Active,,,FTE,1933025,EMP-0005,U0005
+EMP-0106,Teresa,Foster,Finance,IC4,IC4 Engineer,2022-03-19,Active,,,FTE,1174971,EMP-0002,U0002
+EMP-0107,Richard,Arroyo,Engineering,M1,M1 Manager,2021-02-14,Active,,,FTE,1564135,EMP-0003,U0003
+EMP-0108,Jenny,Jackson,Customer Success,M1,M1 Manager,2021-05-30,Active,,,FTE,1856714,EMP-0007,U0007
+EMP-0109,David,Hernandez,Engineering,M1,M1 Manager,2021-11-13,Terminated,2023-01-18,Voluntary,FTE,1915213,EMP-0011,U0011
+EMP-0110,Rebecca,Drake,Sales,M1,M1 Manager,2021-01-03,Active,,,Contractor,1433152,EMP-0013,U0013
+EMP-0111,Dustin,Serrano,Finance,IC3,IC3 Specialist,2021-09-20,Active,,,FTE,904064,EMP-0011,U0011
+EMP-0112,Tina,Sandoval,People Ops,IC3,IC3 Analyst,2024-04-08,Active,,,Contractor,755489,EMP-0004,U0004
+EMP-0113,Michael,Dunn,Finance,M2,M2 Manager,2023-08-02,Active,,,Contractor,2418792,EMP-0005,U0005
+EMP-0114,David,Smith,People Ops,IC4,IC4 Specialist,2022-05-21,Active,,,FTE,1312817,EMP-0001,U0001
+EMP-0115,Tara,Santos,People Ops,IC3,IC3 Engineer,2024-10-13,Active,,,Contractor,767612,EMP-0011,U0011
+EMP-0116,Alisha,Peck,Finance,M1,M1 Manager,2021-03-11,Active,,,FTE,1763465,EMP-0012,U0012
+EMP-0117,Ryan,Wiggins,Customer Success,IC5,IC5 Engineer,2022-08-22,Active,,,FTE,1580966,EMP-0012,U0012
+EMP-0118,Margaret,Clark,Sales,IC4,IC4 Analyst,2022-04-18,Active,,,FTE,1370444,EMP-0008,U0008
+EMP-0119,Johnathan,Carter,Sales,IC5,IC5 Analyst,2024-06-03,Active,,,Contractor,1741942,EMP-0003,U0003
+EMP-0120,John,Willis,Sales,IC3,IC3 Engineer,2023-03-17,Active,,,FTE,1025683,EMP-0001,U0001
+EMP-0121,Jordan,Barnes,People Ops,IC4,IC4 Specialist,2022-01-13,Active,,,FTE,1434463,EMP-0007,U0007
+EMP-0122,David,Kent,Sales,IC3,IC3 Specialist,2022-11-06,Active,,,FTE,1011917,EMP-0004,U0004
+EMP-0123,Michael,Ellis,Finance,M1,M1 Manager,2023-02-15,Active,,,Contractor,1944788,EMP-0014,U0014
+EMP-0124,Brandy,Strong,Engineering,M1,M1 Manager,2022-07-28,Terminated,2023-05-09,Voluntary,FTE,1656567,EMP-0015,U0015
+EMP-0125,Robert,Hardin,People Ops,IC4,IC4 Engineer,2022-09-25,Active,,,FTE,1000613,EMP-0014,U0014
+EMP-0126,Walter,Schmidt,Finance,M1,M1 Manager,2023-07-04,Active,,,FTE,1522689,EMP-0004,U0004
+EMP-0127,Alexandra,Smith,People Ops,M1,M1 Manager,2024-07-04,Active,,,Contractor,1302641,EMP-0013,U0013
+EMP-0128,Scott,White,Sales,IC3,IC3 Specialist,2021-05-07,Active,,,FTE,697626,EMP-0005,U0005
+EMP-0129,Adam,Lloyd,Finance,M2,M2 Manager,2024-06-17,Active,,,FTE,2516580,EMP-0001,U0001
+EMP-0130,Gerald,Wells,Engineering,IC5,IC5 Engineer,2024-05-04,Active,,,FTE,2052773,EMP-0015,U0015
+EMP-0131,Jessica,Hawkins,Finance,IC3,IC3 Analyst,2023-03-03,Active,,,FTE,968328,EMP-0013,U0013
+EMP-0132,Mark,Holmes,Sales,IC4,IC4 Specialist,2022-09-14,Active,,,FTE,1097794,EMP-0014,U0014
+EMP-0133,Angela,Mueller,Customer Success,IC5,IC5 Engineer,2024-05-05,Active,,,FTE,1722680,EMP-0002,U0002
+EMP-0134,Daniel,Castro,Sales,IC4,IC4 Analyst,2021-03-11,Terminated,2024-03-21,Voluntary,FTE,1434406,EMP-0006,U0006
+EMP-0135,John,Hill,People Ops,IC3,IC3 Engineer,2021-07-17,Terminated,2024-03-25,Voluntary,FTE,759310,EMP-0012,U0012
+EMP-0136,Kelsey,Romero,Customer Success,M1,M1 Manager,2022-04-27,Active,,,FTE,1850951,EMP-0012,U0012
+EMP-0137,Anna,Wolf,Finance,IC3,IC3 Analyst,2022-07-27,Active,,,FTE,766460,EMP-0010,U0010
+EMP-0138,Rita,Ramos,Sales,IC5,IC5 Analyst,2022-05-18,Active,,,FTE,2096967,EMP-0004,U0004
+EMP-0139,Cheyenne,Wagner,Engineering,M2,M2 Manager,2022-05-31,Terminated,2024-02-13,Voluntary,FTE,2427193,EMP-0004,U0004
+EMP-0140,William,Schwartz,People Ops,IC3,IC3 Analyst,2022-04-19,Active,,,Contractor,689530,EMP-0014,U0014
+EMP-0141,Shaun,Ferguson,Customer Success,IC5,IC5 Engineer,2024-05-14,Terminated,2025-10-13,Retirement,FTE,1766326,EMP-0006,U0006
+EMP-0142,Timothy,David,Customer Success,IC5,IC5 Specialist,2021-01-13,Active,,,FTE,1896160,EMP-0002,U0002
+EMP-0143,Holly,Mcdowell,Finance,IC4,IC4 Engineer,2021-04-01,Active,,,Contractor,1286700,EMP-0004,U0004
+EMP-0144,Sheri,Green,Finance,IC4,IC4 Engineer,2023-04-18,Active,,,FTE,1297927,EMP-0011,U0011
+EMP-0145,Anita,Harding,Engineering,IC3,IC3 Analyst,2024-01-28,Active,,,FTE,711499,EMP-0008,U0008
+EMP-0146,Mary,Taylor,Sales,M1,M1 Manager,2023-12-30,Active,,,FTE,1545485,EMP-0002,U0002
+EMP-0147,David,Ramos,Engineering,IC5,IC5 Analyst,2022-09-22,Active,,,FTE,1991456,EMP-0007,U0007
+EMP-0148,Charles,Allen,Sales,IC5,IC5 Engineer,2023-01-16,Terminated,2024-06-22,Voluntary,FTE,1754964,EMP-0007,U0007
+EMP-0149,Charles,Caldwell,Finance,IC4,IC4 Analyst,2023-04-12,Active,,,FTE,1376988,EMP-0010,U0010
+EMP-0150,Kristen,Prince,People Ops,IC4,IC4 Engineer,2024-08-05,Active,,,Contractor,1272889,EMP-0013,U0013

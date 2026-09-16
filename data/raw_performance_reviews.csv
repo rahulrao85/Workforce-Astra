@@ -1,0 +1,128 @@
+review_id,employee_id,review_period,rating_score,goals_met_pct,review_text
+REV-00001,EMP-0001,2026-Q2,4,89,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00002,EMP-0002,2026-Q2,4,87,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00003,EMP-0003,2026-Q2,4,94,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00004,EMP-0004,2026-Q2,3,50,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00005,EMP-0005,2026-Q2,4,90,Consistently high-quality output; no retention concerns raised.
+REV-00006,EMP-0006,2026-Q2,4,97,Consistently high-quality output; no retention concerns raised.
+REV-00007,EMP-0007,2026-Q2,4,91,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00008,EMP-0008,2026-Q2,4,97,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00009,EMP-0009,2026-Q2,2,63,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00010,EMP-0010,2026-Q2,2,61,Goals largely unmet this cycle; manager noted visible frustration with role scope.
+REV-00011,EMP-0011,2026-Q2,3,57,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00012,EMP-0012,2026-Q2,5,94,Consistently high-quality output; no retention concerns raised.
+REV-00013,EMP-0013,2026-Q2,5,96,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00014,EMP-0014,2026-Q2,4,85,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00015,EMP-0015,2026-Q2,5,99,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00016,EMP-0016,2026-Q2,5,90,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00017,EMP-0018,2026-Q2,4,89,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00018,EMP-0020,2026-Q2,4,99,Consistently high-quality output; no retention concerns raised.
+REV-00019,EMP-0021,2026-Q2,4,86,Consistently high-quality output; no retention concerns raised.
+REV-00020,EMP-0022,2026-Q2,3,64,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00021,EMP-0023,2026-Q2,4,97,Consistently high-quality output; no retention concerns raised.
+REV-00022,EMP-0024,2026-Q2,4,85,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00023,EMP-0025,2026-Q2,4,91,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00024,EMP-0026,2026-Q2,5,94,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00025,EMP-0027,2026-Q2,4,87,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00026,EMP-0028,2026-Q2,5,90,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00027,EMP-0029,2026-Q2,5,99,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00028,EMP-0030,2026-Q2,5,91,Consistently high-quality output; no retention concerns raised.
+REV-00029,EMP-0031,2026-Q2,4,95,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00030,EMP-0032,2026-Q2,4,97,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00031,EMP-0033,2026-Q2,5,95,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00032,EMP-0034,2026-Q2,3,43,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00033,EMP-0035,2026-Q2,3,70,Goals largely unmet this cycle; manager noted visible frustration with role scope.
+REV-00034,EMP-0036,2026-Q2,4,93,Consistently high-quality output; no retention concerns raised.
+REV-00035,EMP-0037,2026-Q2,5,96,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00036,EMP-0038,2026-Q2,5,89,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00037,EMP-0039,2026-Q2,4,99,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00038,EMP-0040,2026-Q2,2,49,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00039,EMP-0041,2026-Q2,5,85,Consistently high-quality output; no retention concerns raised.
+REV-00040,EMP-0042,2026-Q2,2,49,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00041,EMP-0044,2026-Q2,5,86,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00042,EMP-0046,2026-Q2,4,85,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00043,EMP-0047,2026-Q2,3,49,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00044,EMP-0048,2026-Q2,5,94,Consistently high-quality output; no retention concerns raised.
+REV-00045,EMP-0049,2026-Q2,3,59,Goals largely unmet this cycle; manager noted visible frustration with role scope.
+REV-00046,EMP-0050,2026-Q2,2,69,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00047,EMP-0051,2026-Q2,4,89,Consistently high-quality output; no retention concerns raised.
+REV-00048,EMP-0052,2026-Q2,5,93,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00049,EMP-0053,2026-Q2,3,59,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00050,EMP-0054,2026-Q2,5,92,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00051,EMP-0055,2026-Q2,4,86,Consistently high-quality output; no retention concerns raised.
+REV-00052,EMP-0057,2026-Q2,2,47,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00053,EMP-0059,2026-Q2,2,40,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00054,EMP-0060,2026-Q2,4,89,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00055,EMP-0062,2026-Q2,5,90,Strong delivery and mentorship; flagged compensation concerns and mentioned a competing offer in passing.
+REV-00056,EMP-0063,2026-Q2,5,86,Consistently high-quality output; no retention concerns raised.
+REV-00057,EMP-0065,2026-Q2,4,97,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00058,EMP-0066,2026-Q2,5,90,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00059,EMP-0067,2026-Q2,5,92,Consistently high-quality output; no retention concerns raised.
+REV-00060,EMP-0069,2026-Q2,3,68,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00061,EMP-0070,2026-Q2,5,86,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00062,EMP-0071,2026-Q2,5,93,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00063,EMP-0072,2026-Q2,4,87,Consistently high-quality output; no retention concerns raised.
+REV-00064,EMP-0073,2026-Q2,3,68,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00065,EMP-0074,2026-Q2,4,90,Consistently high-quality output; no retention concerns raised.
+REV-00066,EMP-0076,2026-Q2,5,95,Consistently high-quality output; no retention concerns raised.
+REV-00067,EMP-0077,2026-Q2,5,100,Consistently high-quality output; no retention concerns raised.
+REV-00068,EMP-0078,2026-Q2,4,98,Consistently high-quality output; no retention concerns raised.
+REV-00069,EMP-0079,2026-Q2,5,91,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00070,EMP-0080,2026-Q2,4,90,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00071,EMP-0081,2026-Q2,4,88,Strong delivery and mentorship; flagged compensation concerns and mentioned a competing offer in passing.
+REV-00072,EMP-0082,2026-Q2,4,85,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00073,EMP-0083,2026-Q2,2,62,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00074,EMP-0085,2026-Q2,4,96,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00075,EMP-0086,2026-Q2,4,97,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00076,EMP-0087,2026-Q2,4,88,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00077,EMP-0088,2026-Q2,2,66,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00078,EMP-0089,2026-Q2,4,88,Consistently high-quality output; no retention concerns raised.
+REV-00079,EMP-0092,2026-Q2,5,95,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00080,EMP-0093,2026-Q2,5,93,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00081,EMP-0096,2026-Q2,3,69,Goals largely unmet this cycle; manager noted visible frustration with role scope.
+REV-00082,EMP-0097,2026-Q2,5,94,Consistently high-quality output; no retention concerns raised.
+REV-00083,EMP-0098,2026-Q2,5,85,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00084,EMP-0099,2026-Q2,3,62,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00085,EMP-0100,2026-Q2,4,87,Consistently high-quality output; no retention concerns raised.
+REV-00086,EMP-0101,2026-Q2,2,56,Missed two consecutive sprint commitments; disengaged in team meetings.
+REV-00087,EMP-0102,2026-Q2,4,85,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00088,EMP-0104,2026-Q2,5,90,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00089,EMP-0105,2026-Q2,5,90,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00090,EMP-0106,2026-Q2,4,100,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00091,EMP-0107,2026-Q2,2,55,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00092,EMP-0108,2026-Q2,4,95,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00093,EMP-0110,2026-Q2,5,87,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00094,EMP-0111,2026-Q2,4,96,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00095,EMP-0112,2026-Q2,5,90,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00096,EMP-0113,2026-Q2,4,99,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00097,EMP-0114,2026-Q2,4,96,Consistently high-quality output; no retention concerns raised.
+REV-00098,EMP-0115,2026-Q2,4,99,Consistently high-quality output; no retention concerns raised.
+REV-00099,EMP-0116,2026-Q2,5,90,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00100,EMP-0117,2026-Q2,5,92,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00101,EMP-0118,2026-Q2,4,91,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00102,EMP-0119,2026-Q2,4,89,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00103,EMP-0120,2026-Q2,5,90,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00104,EMP-0121,2026-Q2,4,93,Consistently high-quality output; no retention concerns raised.
+REV-00105,EMP-0122,2026-Q2,4,88,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00106,EMP-0123,2026-Q2,4,94,Consistently high-quality output; no retention concerns raised.
+REV-00107,EMP-0125,2026-Q2,5,91,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00108,EMP-0126,2026-Q2,4,93,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00109,EMP-0127,2026-Q2,4,97,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00110,EMP-0128,2026-Q2,5,99,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00111,EMP-0129,2026-Q2,3,40,Inconsistent output and low meeting participation; workload concerns raised.
+REV-00112,EMP-0130,2026-Q2,5,98,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00113,EMP-0131,2026-Q2,4,90,Consistently high-quality output; no retention concerns raised.
+REV-00114,EMP-0132,2026-Q2,5,95,Top performer on the platform migration; noted pay feels out of step with market and is interviewing externally.
+REV-00115,EMP-0133,2026-Q2,4,98,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00116,EMP-0136,2026-Q2,4,93,Delivered the migration project ahead of schedule; recommended for stretch assignment.
+REV-00117,EMP-0137,2026-Q2,4,98,Consistently high-quality output; no retention concerns raised.
+REV-00118,EMP-0138,2026-Q2,4,95,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00119,EMP-0140,2026-Q2,5,88,Exceeded goals again this cycle; in our 1:1 raised a competing offer and asked about band placement.
+REV-00120,EMP-0142,2026-Q2,4,90,Consistently high-quality output; no retention concerns raised.
+REV-00121,EMP-0143,2026-Q2,4,96,Exceeded goals for the second straight quarter; strong peer feedback on mentorship.
+REV-00122,EMP-0144,2026-Q2,5,91,Consistently high-quality output; no retention concerns raised.
+REV-00123,EMP-0145,2026-Q2,4,96,Strong delivery and mentorship; flagged compensation concerns and mentioned a competing offer in passing.
+REV-00124,EMP-0146,2026-Q2,5,91,Consistently high-quality output; no retention concerns raised.
+REV-00125,EMP-0147,2026-Q2,4,96,Consistently high-quality output; no retention concerns raised.
+REV-00126,EMP-0149,2026-Q2,3,52,Goals largely unmet this cycle; manager noted visible frustration with role scope.
+REV-00127,EMP-0150,2026-Q2,2,53,Goals largely unmet this cycle; manager noted visible frustration with role scope.

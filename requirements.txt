@@ -1,0 +1,10 @@
+# Workforce Astra -- demo dependencies.
+#   pip install -r requirements.txt
+#
+# faker      -> data/generate_synthetic_data.py (synthetic HR dataset)
+# mcp        -> mcp_server/workforce_astra_mcp.py (mock MCP action server)
+#
+# NOTE: `mcp` 2.x renamed FastMCP to MCPServer. The server is written against the
+# 2.x API; pinning below avoids accidentally resolving to 1.x, where the import fails.
+faker>=40.0.0
+mcp>=2.2.0
