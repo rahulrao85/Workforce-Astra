@@ -1,0 +1,2 @@
+# App uses only packages pre-installed in the runtime base image
+# (streamlit, snowflake-snowpark-python, pandas). No external index available.

@@ -29,12 +29,21 @@ behind a flight-risk call, and a CoCo agent closes the loop with a real action.
 - **Explicitly cut from MVP** (roadmap only in the deck): sentiment pulses, span-of-control,
   multi-agent orchestration
 
-## Streamlit-in-Snowflake portal -- LIVE
+## Streamlit-in-Snowflake portal -- LIVE, CONFIRMED WORKING 19-Sep-2026
 `employee_360_portal/streamlit_app.py`, deployed as `WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL`:
-https://app.snowflake.com/ap-southeast-7.aws/si60728/#/streamlit-apps/WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL
-(requires Snowsight login to view -- it's an internal app, not a public URL). Header, 5 governed
-query buttons (including a side-by-side governed-vs-naive comparison), an employee directory,
-and a flight-risk browser with cited evidence and a simulated MCP resolve action.
+https://app.snowflake.com/MUNGIIX/si60728/#/streamlit-apps/WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL
+(requires Snowsight login to view -- it's an internal app, not a public URL). Note: this account
+is reachable under two identifier formats for the same tenant -- `ST42987.ap-southeast-7.aws`
+(locator style, used for CLI/API connections) and `MUNGIIX/si60728` (org/account style, required
+for this Snowsight URL specifically -- the CLI-generated URL using the region segment was wrong
+and produced a generic error page).
+
+Header, 5 governed query buttons (including a side-by-side governed-vs-naive comparison), an
+employee directory, and a flight-risk browser with cited evidence and a simulated MCP resolve
+action. Requires only pre-installed packages (`requirements.txt` is comment-only) since this
+trial account has no External Access Integration -- a real `pyproject.toml` with dependencies
+cannot resolve against PyPI and will break the container; see git history on this file for the
+full failure/fix trail if this ever needs revisiting.
 
 ## Files in this folder
 | File | Purpose |

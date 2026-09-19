@@ -4,14 +4,21 @@ import json
 import os
 from datetime import date
 
-st.set_page_config(page_title="Workforce Astra — Employee 360", layout="wide")
+st.set_page_config(page_title="Workforce Astra - Employee 360", layout="wide")
 
-CONNECTION_NAME = os.getenv("SNOWFLAKE_DEFAULT_CONNECTION_NAME") or "default"
-conn = st.connection("snowflake", connection_name=CONNECTION_NAME)
+try:
+    conn = st.connection("snowflake")
+except Exception as e:
+    st.error(f"Failed to connect to Snowflake: {e}")
+    st.stop()
 
 
 def run_query(sql):
-    return conn.query(sql)
+    try:
+        return conn.query(sql)
+    except Exception as e:
+        st.error(f"Query failed: {e}\n\nSQL: {sql[:200]}")
+        return pd.DataFrame()
 
 
 # ── Section 1: Header ──────────────────────────────────────────────────────
@@ -86,12 +93,14 @@ if active == "__comparison__":
         st.subheader("Governed (FTE only)")
         st.code(gov_q["sql"], language="sql")
         df = run_query(gov_q["sql"])
-        st.metric("Governed Headcount", int(df.iloc[0, 0]))
+        if not df.empty:
+            st.metric("Governed Headcount", int(df.iloc[0, 0]))
     with c2:
         st.subheader("Naive (all active)")
         st.code(naive_q["sql"], language="sql")
         df = run_query(naive_q["sql"])
-        st.metric("Naive Headcount", int(df.iloc[0, 0]))
+        if not df.empty:
+            st.metric("Naive Headcount", int(df.iloc[0, 0]))
     st.info(
         "The governed metric counts only FTE employees. "
         "The naive count includes contractors and interns — this is the conflict "
@@ -103,14 +112,19 @@ elif active and active in QUERIES:
     st.subheader(active)
     st.code(q["sql"], language="sql")
     df = run_query(q["sql"])
-    if len(df) == 1 and len(df.columns) == 1:
-        val = df.iloc[0, 0]
-        if isinstance(val, float) and val < 1:
-            st.metric(active, f"{val:.2%}")
+    if not df.empty:
+        if len(df) == 1 and len(df.columns) == 1:
+            val = df.iloc[0, 0]
+            try:
+                fval = float(val)
+            except (TypeError, ValueError):
+                fval = None
+            if isinstance(fval, float) and fval < 1:
+                st.metric(active, f"{fval:.2%}")
+            else:
+                st.metric(active, val)
         else:
-            st.metric(active, val)
-    else:
-        st.dataframe(df, use_container_width=True)
+            st.dataframe(df, use_container_width=True)
 
 st.divider()
 
@@ -129,25 +143,26 @@ ORDER BY w.department_code, w.last_name
 
 dir_df = run_query(dir_sql)
 
-dept_filter = st.multiselect(
-    "Filter by department",
-    options=sorted(dir_df["DEPARTMENT"].unique()),
-    default=[],
-)
-status_filter = st.multiselect(
-    "Filter by status",
-    options=sorted(dir_df["STATUS"].unique()),
-    default=[],
-)
+if not dir_df.empty:
+    dept_filter = st.multiselect(
+        "Filter by department",
+        options=sorted(dir_df["DEPARTMENT"].unique()),
+        default=[],
+    )
+    status_filter = st.multiselect(
+        "Filter by status",
+        options=sorted(dir_df["STATUS"].unique()),
+        default=[],
+    )
 
-filtered = dir_df.copy()
-if dept_filter:
-    filtered = filtered[filtered["DEPARTMENT"].isin(dept_filter)]
-if status_filter:
-    filtered = filtered[filtered["STATUS"].isin(status_filter)]
+    filtered = dir_df.copy()
+    if dept_filter:
+        filtered = filtered[filtered["DEPARTMENT"].isin(dept_filter)]
+    if status_filter:
+        filtered = filtered[filtered["STATUS"].isin(status_filter)]
 
-st.dataframe(filtered, use_container_width=True, height=400)
-st.caption(f"{len(filtered)} employees shown")
+    st.dataframe(filtered, use_container_width=True, height=400)
+    st.caption(f"{len(filtered)} employees shown")
 
 st.divider()
 
@@ -189,18 +204,18 @@ else:
             st.markdown(f"**Review text (review {row['REVIEW_ID']}):**")
             st.info(row["REVIEW_TEXT"])
 
-            risk_score = round(
-                (1 - row["COMP_RATIO"]) * 0.6 + (row["RATING_SCORE"] / 5) * 0.4, 2
-            )
+            comp_ratio = float(row["COMP_RATIO"])
+            rating = float(row["RATING_SCORE"])
+            risk_score = round((1 - comp_ratio) * 0.6 + (rating / 5) * 0.4, 2)
 
             payload = {
                 "manager_slack_id": row["MANAGER_SLACK_ID"] or "UNKNOWN",
                 "employee_id": row["EMPLOYEE_ID"],
                 "risk_score": risk_score,
                 "evidence_snippet": (
-                    f"[{row['REVIEW_ID']}] comp_ratio={row['COMP_RATIO']}, "
-                    f"rating={row['RATING_SCORE']}. "
-                    f'"{row["REVIEW_TEXT"][:120]}"'
+                    f"[{row['REVIEW_ID']}] comp_ratio={comp_ratio}, "
+                    f"rating={rating}. "
+                    f'"{(row["REVIEW_TEXT"] or "")[:120]}"'
                 ),
             }
 
