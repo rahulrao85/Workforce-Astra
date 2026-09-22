@@ -8,6 +8,9 @@ Workforce Astra -- MOCK MCP server for the closed-loop action (demo stub only).
 
 Tools (schemas mirror MCP_TOOLS.md in the project root):
   - workday_create_compensation_adjustment  -> drafts a comp change for approval routing
+  - workday_create_promotion_nomination     -> drafts a promotion nomination for calibration
+  - workday_create_requisition              -> drafts a job requisition from a governed hiring need
+  - simulate_org_reorg                      -> guarded reorg dry-run (rejects cycles / overspan)
   - slack_notify_manager_flight_risk        -> mocks a private DM to a manager
 
 Every call is appended to calls.jsonl next to this file, so the demo can prove the
@@ -204,6 +207,142 @@ def slack_notify_manager_flight_risk(
     )
 
 
+_IDEMPOTENCY_CACHE: dict[str, str] = {}
+
+
+@server.tool(
+    description=(
+        "Drafts a promotion nomination for the calibration cycle, to be routed through the real "
+        "Workday promotion workflow. DRAFTS only -- never promotes anyone. Supports dry-run."
+    )
+)
+def workday_create_promotion_nomination(
+    employee_id: str = Field(description="Employee ID, e.g. EMP-0042"),
+    target_band: str = Field(description="Target band: one of IC3, IC4, IC5, M1, M2"),
+    justification: str = Field(
+        description="Cites the governed promotion_readiness metric and cited review evidence"
+    ),
+    cycle: str = Field(default="", description="Calibration cycle, e.g. 2026-H2"),
+    dry_run: bool = Field(default=True, description="True = preview only, nothing is queued"),
+    idempotency_key: str = Field(default="", description="Optional key to dedupe repeated calls"),
+) -> str:
+    if target_band not in {"IC3", "IC4", "IC5", "M1", "M2"}:
+        raise ToolError("target_band must be one of IC3, IC4, IC5, M1, M2")
+    if len(justification.strip()) < 20:
+        raise ToolError("justification must cite the governed metric and evidence (>= 20 chars)")
+    if idempotency_key and idempotency_key in _IDEMPOTENCY_CACHE:
+        return _IDEMPOTENCY_CACHE[idempotency_key]
+
+    warnings = [] if cycle else ["No calibration cycle supplied; defaulting to 2026-H2."]
+    result = _ok(
+        "workday_create_promotion_nomination",
+        {
+            "status": "DRY_RUN" if dry_run else "DRAFTED",
+            "nomination_id": f"PN-{datetime.now(timezone.utc):%Y%m%d}-{abs(hash(employee_id)) % 10000:04d}",
+            "employee_id": employee_id,
+            "target_band": target_band,
+            "cycle": cycle or "2026-H2",
+            "justification": justification,
+            "approval_chain": ["Reporting Manager", "People Ops Partner", "Calibration Committee"],
+            "approval_state": "PENDING_MANAGER",
+            "dry_run": dry_run,
+            "applied": False,
+            "warnings": warnings,
+            "note": (
+                "MOCK: no Workday tenant was contacted and no promotion was applied. "
+                "A draft would be queued for the approval chain above."
+            ),
+        },
+    )
+    if idempotency_key:
+        _IDEMPOTENCY_CACHE[idempotency_key] = result
+    return result
+
+
+@server.tool(
+    description=(
+        "Drafts a job requisition in Workday from a governed hiring need (open reqs, time-to-fill, "
+        "span-of-control evidence). DRAFTS only -- never posts a job."
+    )
+)
+def workday_create_requisition(
+    department_code: str = Field(description="Department, e.g. Engineering"),
+    band_code: str = Field(description="Band: one of IC3, IC4, IC5, M1, M2"),
+    justification: str = Field(
+        description="Cites the governed metric that justifies the hire (e.g. overspan manager, open reqs)"
+    ),
+    hiring_manager_id: str = Field(default="", description="Hiring manager employee ID"),
+    dry_run: bool = Field(default=True, description="True = preview only, nothing is queued"),
+) -> str:
+    if band_code not in {"IC3", "IC4", "IC5", "M1", "M2"}:
+        raise ToolError("band_code must be one of IC3, IC4, IC5, M1, M2")
+    if len(justification.strip()) < 20:
+        raise ToolError("justification must cite the governed metric (>= 20 chars)")
+
+    return _ok(
+        "workday_create_requisition",
+        {
+            "status": "DRY_RUN" if dry_run else "DRAFTED",
+            "requisition_id": f"REQ-{datetime.now(timezone.utc):%Y%m%d}-{abs(hash(department_code + band_code)) % 10000:04d}",
+            "department_code": department_code,
+            "band_code": band_code,
+            "hiring_manager_id": hiring_manager_id or None,
+            "justification": justification,
+            "budget_approved_date": date.today().isoformat(),
+            "expected_post_date": (date.today() + timedelta(days=5)).isoformat(),
+            "dry_run": dry_run,
+            "applied": False,
+            "note": (
+                "MOCK: no Workday tenant was contacted and no requisition was posted. "
+                "The budget/post dates feed the governed enterprise_vacancy_duration metric."
+            ),
+        },
+    )
+
+
+@server.tool(
+    description=(
+        "Guarded org reorg simulator. Mirrors WORKFORCE_ASTRA.RAW.simulate_reorg -- rejects "
+        "self-moves and circular reporting lines and NEVER mutates org data. This local tool "
+        "returns a schema-accurate preview; the live version runs as a Snowflake stored procedure."
+    )
+)
+def simulate_org_reorg(
+    source_manager: str = Field(description="Manager whose reporting line would move, e.g. EMP-0001"),
+    target_manager: str = Field(description="Manager who would become the new reporting line, e.g. EMP-0005"),
+    source_subtree_size: int = Field(default=0, description="Size of source subtree (from org_health_360)"),
+    target_current_span: int = Field(default=0, description="Target's current direct reports"),
+) -> str:
+    if not source_manager.startswith("EMP-") or not target_manager.startswith("EMP-"):
+        raise ToolError("manager ids must look like EMP-0001 (guardrail: reject malformed ids)")
+    if source_manager == target_manager:
+        return _ok(
+            "simulate_org_reorg",
+            {"status": "REJECTED", "guardrail": "source and target are the same person"},
+        )
+    if target_current_span + 1 > 12:
+        return _ok(
+            "simulate_org_reorg",
+            {
+                "status": "REJECTED",
+                "guardrail": "would push target span above the 12-report overspan ceiling",
+                "target_projected_span": target_current_span + 1,
+            },
+        )
+    return _ok(
+        "simulate_org_reorg",
+        {
+            "status": "VALIDATED",
+            "source_mgr": source_manager,
+            "target_mgr": target_manager,
+            "source_subtree_size": source_subtree_size,
+            "target_current_span": target_current_span,
+            "target_projected_span": target_current_span + 1,
+            "note": "SIMULATION ONLY - no org data was modified",
+        },
+    )
+
+
 def _selftest() -> int:
     print("== self-test: workday_create_compensation_adjustment ==")
     print(
@@ -232,6 +371,32 @@ def _selftest() -> int:
         slack_notify_manager_flight_risk("not-a-slack-id", "EMP-0042", 0.9, "x")
     except ToolError as e:
         print(f"correctly rejected: {e}")
+
+    print("\n== self-test: workday_create_promotion_nomination (dry-run) ==")
+    print(
+        workday_create_promotion_nomination(
+            employee_id="EMP-0042",
+            target_band="IC5",
+            justification="governed promotion_readiness 0.91; review REV-00042 rating 5, 26 months in IC4",
+            cycle="2026-H2",
+            dry_run=True,
+        )
+    )
+    print("\n== self-test: workday_create_requisition (dry-run) ==")
+    print(
+        workday_create_requisition(
+            department_code="Engineering",
+            band_code="IC4",
+            justification="overspan manager EMP-0007 at 14 direct reports; open reqs at 6 vs plan 4",
+            hiring_manager_id="EMP-0007",
+            dry_run=True,
+        )
+    )
+    print("\n== self-test: simulate_org_reorg (validated) ==")
+    print(simulate_org_reorg("EMP-0001", "EMP-0005", source_subtree_size=9, target_current_span=8))
+    print("\n== self-test: simulate_org_reorg (guardrail: overspan ceiling) ==")
+    print(simulate_org_reorg("EMP-0001", "EMP-0005", source_subtree_size=9, target_current_span=12))
+
     print(f"\naudit trail -> {AUDIT_LOG}")
     return 0
 

@@ -226,3 +226,136 @@ else:
                     "The payload matches the MCP tool schema from MCP_TOOLS.md."
                 )
                 st.json(payload)
+
+st.divider()
+
+# ── Section 5: Org Health & Manager Health ─────────────────────────────────
+st.header("Org Health & Manager Health")
+st.markdown(
+    "Span-of-control and org-design metrics governed by the `org_health_360` semantic view. "
+    "Everyone gets the identical answer to *\"how many managers and how deep is the org?\"*"
+)
+
+org_metrics_sql = """
+SELECT avg_span_of_control, overspan_managers, narrow_span_managers, manager_count, max_org_depth
+FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.org_health_360
+  METRICS org.avg_span_of_control, org.overspan_managers, org.narrow_span_managers,
+          org.manager_count, org.max_org_depth)
+"""
+org_df = run_query(org_metrics_sql)
+if not org_df.empty:
+    r = org_df.iloc[0]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Managers", int(r["MANAGER_COUNT"]))
+    c2.metric("Avg span of control", f"{float(r['AVG_SPAN_OF_CONTROL']):.1f}")
+    c3.metric("Overspan managers (>10)", int(r["OVERSPAN_MANAGERS"]))
+    c4.metric("Max org depth", int(r["MAX_ORG_DEPTH"]))
+
+overspan_sql = """
+SELECT m.employee_id AS manager_id, m.management_tier, m.department_code,
+       m.direct_reports, m.subtree_size
+FROM WORKFORCE_ASTRA.RAW.raw_org_flattened m
+WHERE m.direct_reports > 8
+ORDER BY m.direct_reports DESC
+"""
+overspan_df = run_query(overspan_sql)
+if not overspan_df.empty:
+    st.markdown("**Managers with the widest spans** (org-design bottlenecks):")
+    st.dataframe(overspan_df, use_container_width=True)
+
+st.caption(
+    "Reorg changes can be dry-run through the guarded `simulate_reorg` custom tool, which "
+    "rejects circular reporting lines and orphans and never mutates org data."
+)
+
+st.divider()
+
+# ── Section 6: Pay Equity & Adverse-Impact Auditor ─────────────────────────
+st.header("Pay Equity & Adverse-Impact Auditor")
+st.markdown(
+    "The board's *unadjusted* gap vs Legal's *band-adjusted* gap — both governed by "
+    "`pay_equity_360`. Most of the raw gap disappears once band mix is held constant."
+)
+
+pe_sql = """
+SELECT unadjusted_gap_pct, adjusted_gap_pct FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.pay_equity_360
+  METRICS pe.unadjusted_gap_pct, pe.adjusted_gap_pct)
+"""
+pe_df = run_query(pe_sql)
+if not pe_df.empty:
+    r = pe_df.iloc[0]
+    c1, c2 = st.columns(2)
+    c1.metric("Unadjusted gap (women vs men)", f"{float(r['UNADJUSTED_GAP_PCT']):.2%}")
+    c2.metric("Adjusted gap (band-normalised)", f"{float(r['ADJUSTED_GAP_PCT']):.2%}")
+    st.info(
+        "Governance resolution: the unadjusted figure reflects **band mix**, not like-for-like pay. "
+        "The adjusted metric controls for band via comp-ratio, which is the number legal can defend."
+    )
+
+cohort_sql = """
+SELECT department_code, band_code, gender_cohort, cohort_size, is_suppressed,
+       privacy_note, avg_base_pay_safe, avg_comp_ratio_safe
+FROM WORKFORCE_ASTRA.RAW.pay_equity_cohorts
+ORDER BY department_code, band_code, gender_cohort
+"""
+cohort_df = run_query(cohort_sql)
+if not cohort_df.empty:
+    st.markdown("**Cohort view (k-anonymity enforced: cohorts below 5 are suppressed):**")
+    st.dataframe(cohort_df, use_container_width=True, height=320)
+    st.caption(
+        "Guardrail: any cohort with fewer than 5 employees has its pay figures withheld (NULL) "
+        "to prevent re-identification. Protected attributes are masked outside HR/ACCOUNTADMIN roles."
+    )
+
+st.divider()
+
+# ── Section 7: Metric Governance & Regression Tests ────────────────────────
+st.header("Metric Governance & Regression Tests")
+st.markdown(
+    "Every governed metric has an **owner**, a **certified definition**, and a **golden-value test** "
+    "on a schedule. If a definition silently drifts, the suite fails — the layer that stops teams "
+    "disagreeing again."
+)
+
+reg_sql = """
+SELECT metric_name, domain, owner_role, certified, definition
+FROM WORKFORCE_ASTRA.RAW.metric_registry
+ORDER BY metric_id
+"""
+reg_df = run_query(reg_sql)
+if not reg_df.empty:
+    st.markdown("**Metric definition registry:**")
+    st.dataframe(reg_df, use_container_width=True)
+
+test_sql = """
+SELECT test_id, metric_name, expected_value, actual_value, status, checked_at
+FROM WORKFORCE_ASTRA.RAW.metric_test_results
+ORDER BY test_id
+"""
+test_df = run_query(test_sql)
+if not test_df.empty:
+    passed = int((test_df["STATUS"] == "PASS").sum())
+    total = len(test_df)
+    if passed == total:
+        st.success(f"Regression suite: {passed}/{total} PASS")
+    else:
+        st.error(f"Regression suite: {passed}/{total} PASS — definition drift detected")
+    st.dataframe(test_df, use_container_width=True)
+else:
+    st.caption("No test run yet — the `metric_regression_daily` task populates this table.")
+
+alert_sql = """
+SELECT alert_type, severity, metric_name, detail, created_at
+FROM WORKFORCE_ASTRA.RAW.governance_alerts
+ORDER BY created_at DESC
+LIMIT 10
+"""
+alert_df = run_query(alert_sql)
+if not alert_df.empty:
+    st.markdown("**Recent governance alerts:**")
+    st.dataframe(alert_df, use_container_width=True)
+
+st.caption(
+    "Scheduled automations: `metric_regression_daily` (02:30 UTC) and "
+    "`pay_equity_drift_weekly` (Mondays 03:00 UTC)."
+)

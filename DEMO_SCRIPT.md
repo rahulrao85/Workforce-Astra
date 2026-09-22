@@ -3,11 +3,13 @@
 Required by the submission form: end-to-end workflow via CoCo CLI, input -> processing -> output,
 at least one fully working workflow, 2-3 modular skills/capabilities demonstrated.
 
-Confirmed working as of 19-Sep-2026: CoCo CLI installed and connected, `workforce-astra-data-gen`
-skill runs end to end, semantic view `EMPLOYEE_360` live with correct governed-vs-naive numbers
-(109 vs 127), Streamlit portal renders correctly with real data. This script uses the real,
-verified numbers throughout -- if a live run ever returns different numbers, trust what's on
-screen over this document and don't force it to match.
+Confirmed working as of 21-Sep-2026: CoCo CLI installed and connected, `workforce-astra-data-gen`
+skill runs end to end, semantic views `EMPLOYEE_360` / `ORG_HEALTH_360` / `PAY_EQUITY_360` live
+with correct governed numbers (109 governed vs 127 naive; avg span 9.0; 5 overspan managers;
+unadjusted pay gap -16.8% vs adjusted -2.8%), Cortex Analyst answers all three views with 0
+warnings, MCP server has 5 tools (`--selftest` exits 0), and 2 scheduled Tasks are running. This
+script uses the real, verified numbers throughout -- if a live run ever returns different numbers,
+trust what's on screen over this document and don't force it to match.
 
 ## Beat sheet
 
@@ -32,7 +34,7 @@ same moment, two different governed-vs-ungoverned answers -- that's the whole th
 live, not staged." If the numbers on screen don't match 109/127, stop and re-check the data
 before continuing -- don't record over a mismatch.
 
-**1:45-2:45 -- The Streamlit portal (the polished payoff)**
+**1:45-2:30 -- The Streamlit portal (the polished payoff)**
 Switch to the browser, already logged into Snowsight, already navigated to the portal so there's
 no load-in dead air: https://app.snowflake.com/MUNGIIX/si60728/#/streamlit-apps/WORKFORCE_ASTRA.RAW.EMPLOYEE_360_PORTAL
 1. Click **"Compare: Governed vs Naive"** -- show the same 109/127 conflict, now in the UI, with
@@ -45,10 +47,30 @@ no load-in dead air: https://app.snowflake.com/MUNGIIX/si60728/#/streamlit-apps/
    Narrate: "This is a simulated action matching our MCP tool schema exactly -- the real version
    wires this to an actual Slack/Workday integration."
 
-**2:45-3:15 -- Close**
-State the stack: Semantic Views, Cortex Analyst, Cortex Search-ready evidence, CoCo CLI skills,
-Streamlit-in-Snowflake, MCP. One line on roadmap (live Slack/Workday wiring, Cortex Search over
-review text) without overclaiming what's built today.
+**2:30-3:30 -- Three more governed domains, same portal (the diversification)**
+5. **Org Health & Manager Health**: read the four metrics on screen -- 15 managers, avg span
+   **9.0**, **5 overspan managers** (>10 reports), max depth 2 -- then the widest-span table.
+   Narrate the guardrail: "Reorg changes are dry-run through a guarded `simulate_reorg` tool that
+   rejects circular reporting lines -- it never mutates the org."
+6. **Pay Equity & Adverse-Impact Auditor**: point at **unadjusted -16.8% vs adjusted -2.8%**.
+   Narrate: "The board sees 16.8%; legal sees 2.8% once band mix is held constant. Same data,
+   one governed answer each." Then scroll the cohort table and point at the **SUPPRESSED** rows --
+   "any cohort under 5 people has its pay figures withheld, automatically."
+7. **Metric Governance & Regression Tests**: show the metric registry (owners + certified
+   definitions) and the **7/7 PASS** suite, then the latest governance alert.
+   Narrate: "Every metric has an owner and a golden-value test on a schedule -- if a definition
+   silently drifts, the suite fails. That's what stops teams disagreeing again."
+
+**3:30-3:55 -- Cortex Analyst + scheduled automation (no UI)**
+In a Snowflake worksheet (or CoCo CLI), show Cortex Analyst answering against the new views --
+"compare governed headcount against the naive count" and "what is the adjusted pay gap by
+department" -- and note the SQL it returns is governed, not ad-hoc. Then run `SHOW TASKS IN
+SCHEMA WORKFORCE_ASTRA.RAW;` to show both scheduled automations `started`.
+
+**3:55-4:15 -- Close**
+State the stack: three Semantic Views, Cortex Analyst, Cortex Search, CoCo CLI skills,
+Streamlit-in-Snowflake, MCP (5 tools), and scheduled governance Tasks. One line on roadmap
+(live Slack/Workday wiring behind an EAI) without overclaiming what's built today.
 
 ## Recording notes
 
