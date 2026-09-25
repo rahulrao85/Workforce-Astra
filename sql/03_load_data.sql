@@ -1,5 +1,14 @@
 -- Workforce Astra: stage + load the 3 synthetic CSVs into WORKFORCE_ASTRA.RAW.
 --
+-- ⚠️ SUPERSEDED (25-Sep-2026) — HISTORICAL, DO NOT RUN BY HAND. This file predates the employee-voice
+-- tables and covers only 3 of the 4 CSVs; the raw_voice_transcripts table added in Phase B1 is not
+-- loaded here. It is kept for provenance only.
+--
+-- The CANONICAL load path is scripts/load_workforce_data.py (single FILE_FORMAT definition, single
+-- load path, all 4 CSVs), or scripts/rebuild_all.py for a full rebuild. Both regenerate this file's
+-- content with a machine-correct PUT path. A second hand-run load script is exactly how two load
+-- paths drift and the demo silently shows stale data.
+--
 -- CANONICAL LOAD SCRIPT. Owned by the workforce-astra-data-gen skill
 -- (.cortex/skills/workforce-astra-data-gen/SKILL.md).
 --

@@ -39,6 +39,22 @@ CREATE OR REPLACE TABLE raw_performance_reviews (
     review_text     STRING
 );
 
--- Load: stage the 3 CSVs from data/generate_synthetic_data.py and COPY INTO each
--- table. Ask CoCo CLI to scaffold the exact PUT/COPY INTO commands if current
--- stage syntax needs checking.
+-- Employee voice (Phase B1). Its raw table lives HERE, with the other raw tables, not in
+-- sql/08_employee_voice.sql -- because the CSV load has to happen after this file and before the
+-- semantic views, and a table created two files later simply does not exist yet when COPY INTO
+-- runs. One load path, one DDL home per raw table.
+CREATE OR REPLACE TABLE raw_voice_transcripts (
+    transcript_id   STRING PRIMARY KEY,
+    employee_id     STRING,
+    interview_type  STRING,   -- 'stay' | 'exit'
+    tenure_months   NUMBER,
+    interview_date  DATE,
+    channel         STRING,
+    transcript_text STRING,   -- the unstructured field
+    synthetic_note  STRING
+);
+
+-- Load: stage the 4 CSVs from data/generate_synthetic_data.py and
+-- data/generate_voice_transcripts.py, then COPY INTO each table. The canonical load path is
+-- scripts/load_workforce_data.py (or scripts/rebuild_all.py for a full rebuild) -- it owns the
+-- single FILE_FORMAT definition and the machine-correct PUT path. Do not hand-write a second one.

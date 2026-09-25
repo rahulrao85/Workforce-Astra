@@ -105,8 +105,61 @@ That is deliberate — it turns a silent change in the AI pipeline into a visibl
 registry marks these metrics `model_dependent = TRUE` so nobody mistakes them for deterministic
 facts.
 
-### Snowflake Marketplace — checked, not used
-`SHOW DATABASES IN ACCOUNT` / `SHOW SHARES IN ACCOUNT` confirm **no Marketplace listing is installed**
+## Rebuilding on a fresh trial account
+T&C §4.6 gives finalists a new trial if theirs expired — and this one is estimated to expire
+**~11-Oct-2026, before the 27–30 Oct live finale**, so being able to rebuild fast is a hard
+requirement rather than a nicety. `scripts/rebuild_all.py` is that button.
+
+```bash
+# the real thing
+python scripts/rebuild_all.py
+
+# rehearse it on a throwaway database first, exactly as it was tested
+python scripts/rebuild_all.py --database WORKFORCE_ASTRA_REBUILD_TEST
+python scripts/rebuild_all.py --database WORKFORCE_ASTRA_REBUILD_TEST --drop-only --yes
+
+# drive the build through CoCo CLI instead of snow
+python scripts/rebuild_all.py --backend coco
+```
+
+It regenerates and verifies all 4 CSVs, stages them to a space-free path, concatenates `sql/*.sql`
+in dependency order with the database name substituted, applies it, then runs the Snowpark scoring
+procedure, the band review and the regression suite, and prints the governed numbers to compare
+against this README.
+
+**Tested for real, not asserted.** Rehearsed end-to-end into `WORKFORCE_ASTRA_REBUILD_TEST` on
+25-Sep-2026: **81 statements, 25/25 regression tests passing, 150/127/18 rows, all 5 semantic views
+present**, then dropped. `WORKFORCE_ASTRA.RAW` was confirmed untouched throughout (25/25 before and
+after). The rehearsal earned its keep immediately — see below.
+
+**The bug it caught that the live database was hiding.** The first rehearsal failed with
+`invalid identifier 'V_ALERT'`. `run_band_review` had been fixed interactively by CoCo while it was
+being built, and I synced the *procedure body* back into `sql/09` but missed the one-character fix
+to a `LET`-bound variable reference. The live procedure was correct, so nothing was visibly wrong —
+but the **file** was wrong, which is exactly what a fresh account would have replayed. Note that
+`CREATE OR REPLACE PROCEDURE` does *not* catch this class of error: the object deploys "successfully"
+and only fails when the Task first calls it. A repo that is only ever tested against the database it
+was written on cannot find this.
+
+`scripts/test_rebuild_splitter.py` guards the other sharp edge: the rebuild splits ~81 statements,
+and Snowflake procedures and JavaScript handlers have `$$` bodies full of semicolons. A naive split
+silently truncates every procedure. The test covers dollar-quoted bodies, tagged dollar quotes,
+semicolons inside string literals, doubled-quote escapes and comment stripping, and asserts that no
+procedure or semantic-view statement in `sql/` comes out truncated. **Run it after touching any
+`sql/` file:** `python scripts/test_rebuild_splitter.py`.
+
+**Two backends, and an honest limitation.** `--backend snow` (the default) applies the whole script
+in one process. `--backend coco` runs one `cortex -c … -p "<statement>" --bypass` call per statement,
+which is the evidence the hackathon asks for, but it is slow and **CoCo's `sql_execute` tool
+intermittently refuses to run a statement** ("tool restrictions in this session"), so it is not
+reliable enough to be the default. The `snow` default exists because CoCo genuinely cannot apply an
+81-statement rebuild in one call; the canonical `sql/` files are themselves the artefact CoCo
+authored and applied statement-by-statement during development.
+
+The Streamlit portal is deliberately **not** deployed by this script — deploy it separately from
+`employee_360_portal/` — so a rebuild never silently overwrites a live app.
+
+### Snowflake Marketplace — checked, not used`SHOW DATABASES IN ACCOUNT` / `SHOW SHARES IN ACCOUNT` confirm **no Marketplace listing is installed**
 on this trial account; the only inbound shares are Snowflake's own (`ACCOUNT_USAGE`,
 `SAMPLE_DATA`). Plausible free compensation listings exist (US salary-by-occupation, O\*Net, an
 explicitly "Free" Australian employment-statistics feed), but **installing one requires accepting the
@@ -170,18 +223,20 @@ afterthought.
 | `SETUP.md` | Account + CoCo CLI setup — same critical path as any track, do this first |
 | `data/generate_synthetic_data.py` | Generates the 3 CSVs with the deliberate FTE/contractor conflict. `--verify` asserts the demo invariants |
 | `data/generate_voice_transcripts.py` | Generates the 18 hand-authored stay/exit interview transcripts. `--verify` asserts length spread, no templating, and that the cross-signal is demonstrable |
-| `scripts/load_workforce_data.py` | One-shot pipeline: generate → verify → stage (space-free path) → emit/run the load SQL |
+| `scripts/load_workforce_data.py` | One-shot pipeline: generate → verify → stage (space-free path) → emit/run the load SQL. **Owns the single CSV `FILE_FORMAT` and the single load path for all 4 CSVs** |
 | `.cortex/skills/workforce-astra-data-gen/SKILL.md` | **CoCo CLI skill 1** — invoke as `$workforce-astra-data-gen` |
 | `mcp_server/workforce_astra_mcp.py` | Mock MCP action server (6 tools). `--selftest` runs without a client and exits 0 |
 | `sql/01_create_tables.sql` | Raw table DDL |
 | `sql/02_semantic_view.sql` | `employee_360` Semantic View + 5 verified queries (incl. the governed-vs-naive comparison) |
-| `sql/03_load_data.sql` | Stage + `COPY INTO` for the 3 CSVs. Generated by the loader script — don't fork it |
+| `sql/03_load_data.sql` | Historical output of the loader for the first 3 CSVs. **Superseded** — the canonical load path is `scripts/load_workforce_data.py` (now all 4 CSVs) and `scripts/rebuild_all.py` |
 | `sql/04_cortex_search.sql` | Cortex Search service over `review_text` — **live & ACTIVE over 127 reviews, verified 25-Sep-2026** (evidence step) |
 | `sql/05_org_health.sql` | Org hierarchy, `org_walk_up` UDF, guarded `simulate_reorg` proc, `org_health_360` view |
 | `sql/06_pay_equity.sql` | Demographics, cohort k-anonymity suppression, masking policy, `pay_equity_360` view |
 | `sql/07_metric_governance.sql` | Metric registry, golden-value regression tests (17), drift proc, 2 scheduled Tasks |
 | `sql/08_employee_voice.sql` | Employee voice: transcripts table, **Snowpark Python** `score_voice_transcripts()` (Cortex SENTIMENT + AI_CLASSIFY), `voice_risk_360` cross-signal view, `employee_voice_360` semantic view |
 | `sql/09_band_architecture.sql` | Band architecture: `band_range_health`, `band_range_overlap`, `band_review_findings`, `run_band_review()` (reports, never proposes), `band_health_360` view, quarterly Task |
+| `scripts/rebuild_all.py` | **One-command rebuild** for a fresh trial account — regenerates data, splices `sql/*.sql` in dependency order with the database name substituted, applies via `snow` or CoCo, then scores + audits + tests |
+| `scripts/test_rebuild_splitter.py` | Offline test for the rebuild's SQL statement splitter (protects `$$` procedure bodies). Run after touching any `sql/` file |
 | `WORKDAY_LLM_PROMPT.md` | Reusable prompt pack so other LLMs can extend the Workday action layer in parallel |
 | `MCP_TOOLS.md` | The 6 mock MCP tool definitions for the closed-loop action |
 | `SUBMISSION_BRIEF.md` | Ready-to-paste MVP brief, states the Employee 360 reframe explicitly |

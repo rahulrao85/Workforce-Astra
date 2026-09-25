@@ -26,13 +26,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 GENERATOR = DATA_DIR / "generate_synthetic_data.py"
+VOICE_GENERATOR = DATA_DIR / "generate_voice_transcripts.py"
 STAGE_NAME = "workforce_astra_csv_stage"
 
-# Load order matters: bands <- workers <- reviews (workers.band_code, reviews.employee_id)
+# Load order matters: bands <- workers <- reviews (workers.band_code, reviews.employee_id).
+# raw_voice_transcripts is loaded last; its DDL lives in sql/01_create_tables.sql.
+#
+# THIS LIST IS THE SINGLE CANONICAL DEFINITION OF WHAT GETS LOADED. sql/08_employee_voice.sql
+# deliberately contains no PUT/COPY block so there is exactly one load path in the project.
 TABLES = [
     ("raw_compensation_bands", "raw_compensation_bands.csv"),
     ("raw_workday_workers", "raw_workday_workers.csv"),
     ("raw_performance_reviews", "raw_performance_reviews.csv"),
+    ("raw_voice_transcripts", "raw_voice_transcripts.csv"),
 ]
 
 # Single source of truth for the CSV file format -- used by both the stage and COPY INTO.
@@ -49,8 +55,10 @@ FILE_FORMAT = (
 def generate_and_verify():
     print("== Step 1: regenerate synthetic data ==", flush=True)
     subprocess.run([sys.executable, str(GENERATOR)], check=True)
-    print("\n== Step 2: verify demo invariants ==", flush=True)
     subprocess.run([sys.executable, str(GENERATOR), "--verify"], check=True)
+    if VOICE_GENERATOR.exists():
+        subprocess.run([sys.executable, str(VOICE_GENERATOR)], check=True)
+        subprocess.run([sys.executable, str(VOICE_GENERATOR), "--verify"], check=True)
 
 
 def stage_csvs():
@@ -100,10 +108,11 @@ def build_sql(staging: Path) -> str:
             "",
         ]
     lines += [
-        "-- Row counts: must match 5 / 150 / 127",
+        "-- Row counts: must match 5 / 150 / 127 / 18",
         "SELECT 'raw_compensation_bands' AS table_name, COUNT(*) AS row_count FROM raw_compensation_bands",
         "UNION ALL SELECT 'raw_workday_workers',      COUNT(*) FROM raw_workday_workers",
-        "UNION ALL SELECT 'raw_performance_reviews',  COUNT(*) FROM raw_performance_reviews;",
+        "UNION ALL SELECT 'raw_performance_reviews',  COUNT(*) FROM raw_performance_reviews",
+        "UNION ALL SELECT 'raw_voice_transcripts',    COUNT(*) FROM raw_voice_transcripts;",
         "",
         "-- THE PROOF POINT: these two numbers must differ.",
         "SELECT",

@@ -157,8 +157,12 @@ BEGIN
         || :v_red || ' red circle, ' || :v_floor || ' clustered at the floor. '
         || 'REPORTS ONLY - no pay values are proposed or changed by this procedure.';
 
+    -- A LET-bound variable is referenced in SQL with a leading colon, same as a DECLARE-bound one.
+    -- Without the colon this compiles as a column name and fails at RUN time with
+    -- "invalid identifier 'V_ALERT'" -- and note CREATE OR REPLACE PROCEDURE does NOT catch it,
+    -- so the object appears to deploy cleanly and only explodes when the Task first calls it.
     INSERT INTO WORKFORCE_ASTRA.RAW.governance_alerts (alert_type, severity, metric_name, detail)
-    SELECT 'BAND_ARCHITECTURE', v_sev, 'below_range_rate', v_alert
+    SELECT 'BAND_ARCHITECTURE', v_sev, 'below_range_rate', :v_alert
     FROM (SELECT CASE WHEN :v_below > 0 THEN 'HIGH' ELSE 'INFO' END AS v_sev);
 
     RETURN OBJECT_CONSTRUCT('findings', :v_rows, 'below_range_min', :v_below,

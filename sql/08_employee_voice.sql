@@ -24,39 +24,20 @@ USE SCHEMA RAW;
 
 -- ---------------------------------------------------------------------------
 -- 1. Raw transcript table
+--    NOTE: the DDL lives in sql/01_create_tables.sql with the other raw tables, because the CSV
+--    load must run after this table exists and before the semantic views. It is repeated here only
+--    as a comment for orientation -- executing it twice is harmless, executing it in the wrong
+--    order is not.
+--    See sql/01_create_tables.sql :: raw_voice_transcripts
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE TABLE WORKFORCE_ASTRA.RAW.raw_voice_transcripts (
-    transcript_id   STRING PRIMARY KEY,
-    employee_id     STRING,
-    interview_type  STRING,   -- 'stay' | 'exit'
-    tenure_months   NUMBER,
-    interview_date  DATE,
-    channel         STRING,   -- structured_exit_interview | pulse_followup | ...
-    transcript_text STRING,   -- the unstructured field
-    synthetic_note  STRING
-);
 
 -- ---------------------------------------------------------------------------
--- 2. Stage + load
---    The CSV is produced by data/generate_voice_transcripts.py and PUT to the SAME internal
---    stage the other three tables use, so there is one load path for the whole project.
---    Run sql/01_create_tables.sql, then scripts/load_workforce_data.py, first.
+-- 2. Load
+--    There is deliberately NO PUT/COPY block in this file. The load is owned by
+--    scripts/load_workforce_data.py (single FILE_FORMAT definition, machine-correct PUT path) and
+--    by scripts/rebuild_all.py for a full rebuild. A second hand-written load path is exactly how
+--    the two drift apart and the demo silently shows stale data.
 -- ---------------------------------------------------------------------------
-PUT file://C:/Users/rahul/AppData/Local/Temp/wf_astra_stage/raw_voice_transcripts.csv
-  @WORKFORCE_ASTRA.RAW.workforce_astra_csv_stage AUTO_COMPRESS = FALSE OVERWRITE = TRUE;
-
--- TRUNCATE + FORCE: a second COPY of the same file is otherwise a silent no-op.
-TRUNCATE TABLE IF EXISTS WORKFORCE_ASTRA.RAW.raw_voice_transcripts;
-COPY INTO WORKFORCE_ASTRA.RAW.raw_voice_transcripts
-  FROM @WORKFORCE_ASTRA.RAW.workforce_astra_csv_stage/raw_voice_transcripts.csv
-  FILE_FORMAT = (TYPE = CSV
-                 SKIP_HEADER = 1
-                 FIELD_OPTIONALLY_ENCLOSED_BY = '"'
-                 DATE_FORMAT = 'YYYY-MM-DD'
-                 EMPTY_FIELD_AS_NULL = TRUE
-                 NULL_IF = (''))
-  ON_ERROR = ABORT_STATEMENT
-  FORCE = TRUE;
 
 -- ---------------------------------------------------------------------------
 -- 3. Results table
