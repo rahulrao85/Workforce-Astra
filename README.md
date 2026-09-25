@@ -4,19 +4,20 @@
 **Framing:** Employee 360 — the internal-stakeholder analog of Customer 360. Stated explicitly
 and up front in the submission brief, not hidden.
 **Submission window:** 13-Sep-2026 – 04-Oct-2026 (MVP/prototype stage)
-**Status (25-Sep-2026):** core build complete and live-verified — 3 Semantic Views, Cortex Analyst
-clean on all 3, Cortex Search service ACTIVE, 7/7 regression tests, 2 scheduled Tasks, 5-tool mock
+**Status (25-Sep-2026):** core build complete and live-verified — 4 Semantic Views, Cortex Analyst
+clean on all 4, Cortex Search service ACTIVE, 17/17 regression tests, 2 scheduled Tasks, 5-tool mock
 MCP server, Streamlit portal deployed. Demo video not yet recorded; submission not yet filed.
 
 ## One-line pitch
 Off-the-shelf HRMS platforms are rigid and suffer the same metric-divergence problem the
 Customer 360 track calls out: ask Finance the attrition rate, ask HR, ask Engineering — three
 different numbers from the same underlying data, because nobody owns the definition. Workforce
-Astra builds the People Engine directly on Snowflake: three governed Semantic Views (Employee 360,
-Org Health, Pay Equity) unify HRIS, compensation, org-hierarchy and performance data (structured +
-unstructured); Cortex Analyst answers all three with visible SQL and zero warnings; a live Cortex
-Search service indexes the 127 review notes behind a flight-risk call; and a 5-tool mock MCP server
-drafts the retention action for a manager -- dry-run only, nothing is ever sent to Slack or Workday.
+Astra builds the People Engine directly on Snowflake: four governed Semantic Views (Employee 360,
+Org Health, Pay Equity, Employee Voice) unify HRIS, compensation, org-hierarchy, performance-review
+and exit-interview data (structured + unstructured); Cortex Analyst answers all four with visible
+SQL and zero warnings; a live Cortex Search service indexes the 127 review notes behind a flight-risk
+call; and a 5-tool mock MCP server drafts the retention action for a manager -- dry-run only,
+nothing is ever sent to Slack or Workday.
 
 ## MVP scope (cut hard for a 1-2 day build)
 - **Entities:** `raw_workday_workers`, `raw_compensation_bands`, `raw_performance_reviews`
@@ -49,18 +50,43 @@ trial account has no External Access Integration -- a real `pyproject.toml` with
 cannot resolve against PyPI and will break the container; see git history on this file for the
 full failure/fix trail if this ever needs revisiting.
 
-## Diversification build — Org Health, Pay Equity, Governance (LIVE 21-Sep-2026)
-Three new governed domains on top of the core (`sql/05_org_health.sql`, `sql/06_pay_equity.sql`,
-`sql/07_metric_governance.sql`), all verified live and surfaced in the same portal:
+## Diversification build — Org Health, Pay Equity, Governance, Employee Voice (LIVE)
+Four additional governed domains on top of the core, all verified live and surfaced in the same portal:
 
-| Domain | Semantic view | Headline result | Rubric hit |
+| Domain | Object | Headline result | Rubric hit |
 |---|---|---|---|
 | Org design & manager health | `org_health_360` | 15 managers, avg span **9.0**, **5 overspan managers** (>10 reports) | custom function (`simulate_reorg`, guarded), Cortex Analyst |
 | Pay equity / DEI | `pay_equity_360` | unadjusted gap **-16.8%** vs adjusted (band-normalised) **-2.8%** | guardrails: masking policy + k-anonymity (n<5 suppression) |
-| Metric governance | registry + tests | regression suite **7/7 PASS**, scheduled daily | scheduled automation (2 Tasks) + guardrails |
+| Metric governance | registry + tests | regression suite **17/17 PASS**, scheduled daily | scheduled automation (2 Tasks) + guardrails |
+| Employee voice | `employee_voice_360` | 18 interviews scored; **career_growth is the top reason (6 of 18)**; **5 corroborated flight risks** | **Snowpark Python**, Cortex `SENTIMENT` + `AI_CLASSIFY` |
+
+### Employee voice — the unstructured layer, and the only Snowpark in the project
+`sql/08_employee_voice.sql`. 18 hand-authored stay/exit interview transcripts
+(`data/generate_voice_transcripts.py`) are scored by `score_voice_transcripts()`, a **Snowpark Python
+stored procedure** — the only Python that runs inside Snowflake here. It calls
+`SNOWFLAKE.CORTEX.SENTIMENT` for a signed score and `SNOWFLAKE.CORTEX.AI_CLASSIFY` (multi-label,
+few-shot) for the reason, against a **fixed, versioned** 8-label taxonomy, then writes
+`voice_theme_results`.
+
+`voice_risk_360` is where it pays off: it joins the negative voice signal to the structured
+flight-risk evidence and finds the **5 people who are simultaneously** saying something negative
+*and* underpaid below 0.85 of band *and* rated 4+. The transcript explains a risk the structured
+metric only hinted at.
+
+Two design choices worth calling out, because both were forced by hitting the real API:
+- **No invented confidence score.** `AI_CLASSIFY` returns `{"labels": [...]}` and nothing else, so
+  the procedure records a primary *and* secondary reason instead of a fabricated 0–1 confidence.
+- **A documented reason taxonomy, not free text.** Letting the model invent reason labels would
+  re-create the "three teams, three answers" problem this project exists to fix.
 
 Design rule enforced throughout: **single-grain base tables** feed each semantic view, so
 one-to-many joins can never double-count a governed metric (the classic fan-out failure).
+
+### Test stability, stated honestly
+Regression tests **1–7 are deterministic** (they read tables). Tests **8–17 read Cortex model output**,
+so they pin *current model behaviour*: a Snowflake model upgrade will fail them. That is deliberate —
+it turns a silent change in the AI pipeline into a visible, triaged alert. The registry marks these
+metrics `model_dependent = TRUE` so nobody mistakes them for deterministic facts.
 
 ## Datasets and licences
 **Every row of data in this project is synthetic. No real employee, employer, Workday tenant, or
@@ -72,6 +98,9 @@ personal data is used anywhere** (T&C §5(d)). Nothing here comes from an employ
 | `data/raw_compensation_bands.csv` → `raw_compensation_bands` | 5 | Same generator, hand-set band midpoints. Ours. |
 | `data/raw_performance_reviews.csv` → `raw_performance_reviews` | 127 | Same generator; the free-text `review_text` is the only unstructured field. Ours. |
 | `raw_employee_demographics` | 150 | **Not** from a CSV — synthesised deterministically in SQL (`sql/06_pay_equity.sql`) from `HASH(employee_id)`, with a deliberate band-mix skew that creates the unadjusted pay gap honestly. Carries a `synthetic_note` column. Ours. |
+| `data/raw_voice_transcripts.csv` → `raw_voice_transcripts` | 18 | **Hand-authored** stay/exit interview transcripts (`data/generate_voice_transcripts.py`), 51–85 words each, deliberately varied in length/register/ambiguity rather than templated — a templated corpus would make the sentiment and classification results meaningless. The generator seeds each interview onto an employee who already meets the structured flight-risk rule, so the cross-signal is demonstrable. Ours. |
+| `voice_theme_results` | 18 | Derived by the Snowpark procedure from the transcripts. Ours. |
+| `voice_risk_360` (view) | 18 | Derived: voice results joined to worker, band and review evidence. Ours. |
 | `raw_org_hierarchy` / `raw_org_flattened` | 150 | Derived in SQL from `raw_workday_workers.manager_id` (`sql/05_org_health.sql`). Ours. |
 | `raw_pay_equity_base`, `pay_equity_cohorts` | derived | Derived in SQL, single employee grain. Ours. |
 | `metric_registry`, `metric_regression_tests`, `metric_test_results`, `governance_alerts` | small | Authored by hand in `sql/07_metric_governance.sql`. Ours. |
@@ -113,6 +142,7 @@ afterthought.
 |---|---|
 | `SETUP.md` | Account + CoCo CLI setup — same critical path as any track, do this first |
 | `data/generate_synthetic_data.py` | Generates the 3 CSVs with the deliberate FTE/contractor conflict. `--verify` asserts the demo invariants |
+| `data/generate_voice_transcripts.py` | Generates the 18 hand-authored stay/exit interview transcripts. `--verify` asserts length spread, no templating, and that the cross-signal is demonstrable |
 | `scripts/load_workforce_data.py` | One-shot pipeline: generate → verify → stage (space-free path) → emit/run the load SQL |
 | `.cortex/skills/workforce-astra-data-gen/SKILL.md` | **CoCo CLI skill 1** — invoke as `$workforce-astra-data-gen` |
 | `mcp_server/workforce_astra_mcp.py` | Mock MCP action server (5 tools). `--selftest` runs without a client |
@@ -122,7 +152,8 @@ afterthought.
 | `sql/04_cortex_search.sql` | Cortex Search service over `review_text` — **live & ACTIVE over 127 reviews, verified 25-Sep-2026** (evidence step) |
 | `sql/05_org_health.sql` | Org hierarchy, `org_walk_up` UDF, guarded `simulate_reorg` proc, `org_health_360` view |
 | `sql/06_pay_equity.sql` | Demographics, cohort k-anonymity suppression, masking policy, `pay_equity_360` view |
-| `sql/07_metric_governance.sql` | Metric registry, golden-value regression tests, drift proc, 2 scheduled Tasks |
+| `sql/07_metric_governance.sql` | Metric registry, golden-value regression tests (17), drift proc, 2 scheduled Tasks |
+| `sql/08_employee_voice.sql` | Employee voice: transcripts table, **Snowpark Python** `score_voice_transcripts()` (Cortex SENTIMENT + AI_CLASSIFY), `voice_risk_360` cross-signal view, `employee_voice_360` semantic view |
 | `WORKDAY_LLM_PROMPT.md` | Reusable prompt pack so other LLMs can extend the Workday action layer in parallel |
 | `MCP_TOOLS.md` | The 5 mock MCP tool definitions for the closed-loop action |
 | `SUBMISSION_BRIEF.md` | Ready-to-paste MVP brief, states the Employee 360 reframe explicitly |

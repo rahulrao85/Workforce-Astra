@@ -23,7 +23,10 @@ def run_query(sql):
 
 # ── Section 1: Header ──────────────────────────────────────────────────────
 st.title("Workforce Astra — Employee 360 Portal")
-st.caption("People Ops command center · Governed by the `employee_360` semantic view")
+st.caption(
+    "People Ops command center · Governed by four Snowflake semantic views — "
+    "`employee_360`, `org_health_360`, `pay_equity_360`, `employee_voice_360`"
+)
 st.divider()
 
 # ── Section 2: Ask the Governed Semantic View ──────────────────────────────
@@ -359,3 +362,106 @@ st.caption(
     "Scheduled automations: `metric_regression_daily` (02:30 UTC) and "
     "`pay_equity_drift_weekly` (Mondays 03:00 UTC)."
 )
+
+st.divider()
+
+# ── Section 8: Employee Voice — sentiment & reason classification ────────────
+st.header("Employee Voice — Sentiment & Reason")
+st.markdown(
+    "Stay and exit interview transcripts, scored by a **Snowpark Python** stored procedure that "
+    "runs `SNOWFLAKE.CORTEX.SENTIMENT` and `SNOWFLAKE.CORTEX.AI_CLASSIFY` inside Snowflake. "
+    "The reason label set is fixed and governed — free-form labels would re-create exactly the "
+    "problem this project exists to fix."
+)
+
+if st.button("Re-score all transcripts (runs the Snowpark procedure)", use_container_width=False):
+    with st.spinner("Running score_voice_transcripts() …"):
+        run_query("CALL WORKFORCE_ASTRA.RAW.score_voice_transcripts()")
+    st.success("Re-scored. The table below is the fresh result of the procedure run.")
+
+voice_metrics_sql = """
+SELECT transcript_count, exit_transcript_count, stay_transcript_count,
+       negative_transcript_count, multi_reason_transcript_count,
+       flight_risk_signal_count, avg_sentiment
+FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.employee_voice_360
+     METRICS voice.transcript_count, voice.exit_transcript_count,
+             voice.stay_transcript_count, voice.negative_transcript_count,
+             voice.multi_reason_transcript_count, voice.flight_risk_signal_count,
+             voice.avg_sentiment)
+"""
+vm = run_query(voice_metrics_sql)
+if not vm.empty:
+    m = vm.iloc[0]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Transcripts scored", int(m["TRANSCRIPT_COUNT"]))
+    c2.metric("Exit / Stay", f"{int(m['EXIT_TRANSCRIPT_COUNT'])} / {int(m['STAY_TRANSCRIPT_COUNT'])}")
+    c3.metric("Negative sentiment", int(m["NEGATIVE_TRANSCRIPT_COUNT"]))
+    c4.metric("Flight-risk signals", int(m["FLIGHT_RISK_SIGNAL_COUNT"]))
+    st.caption(
+        f"Average sentiment {float(m['AVG_SENTIMENT']):+.3f} · "
+        f"{int(m['MULTI_REASON_TRANSCRIPT_COUNT'])} interviews named more than one reason "
+        "(multi-label classification, so the reasons are not forced into a single bucket)."
+    )
+
+reason_sql = """
+SELECT primary_reason, transcript_count
+FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.employee_voice_360
+     DIMENSIONS voice.primary_reason
+     METRICS voice.transcript_count)
+ORDER BY transcript_count DESC
+"""
+rdf = run_query(reason_sql)
+if not rdf.empty:
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Why people leave (classified primary reason):**")
+        st.dataframe(rdf, use_container_width=True, height=300)
+    with right:
+        st.markdown("**Negative sentiment, by reason:**")
+        neg_sql = """
+        SELECT primary_reason, interview_type, avg_sentiment
+        FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.employee_voice_360
+             DIMENSIONS voice.primary_reason, voice.interview_type
+             METRICS voice.avg_sentiment)
+        ORDER BY avg_sentiment ASC
+        """
+        ndf = run_query(neg_sql)
+        if not ndf.empty:
+            st.dataframe(ndf, use_container_width=True, height=300)
+
+st.markdown("**The cross-signal: negative voice + structured flight risk in the same person**")
+st.caption(
+    "These are the rows that matter. An exit interview that reads negative *and* names a fixable "
+    "reason (pay, manager, progression), landing on someone already underpaid and highly rated — "
+    "the transcript explains the retention risk the structured metric only hinted at."
+)
+xb_sql = """
+SELECT employee_id, department_code, primary_reason, secondary_reason,
+       ROUND(sentiment_score, 3) AS sentiment_score, comp_ratio, rating_score,
+       LEFT(review_text, 220) AS review_evidence, transcript_text
+FROM WORKFORCE_ASTRA.RAW.voice_risk_360
+WHERE corroborated_flight_risk
+ORDER BY sentiment_score ASC
+"""
+xdf = run_query(xb_sql)
+if not xdf.empty:
+    st.dataframe(
+        xdf.drop(columns=["TRANSCRIPT_TEXT"]),
+        use_container_width=True,
+    )
+    for _, row in xdf.iterrows():
+        with st.expander(f"{row['EMPLOYEE_ID']} — {row['PRIMARY_REASON']} (sentiment {row['SENTIMENT_SCORE']})"):
+            st.markdown("**Exit interview, verbatim:**")
+            st.write(row["TRANSCRIPT_TEXT"])
+            st.markdown("**Corroborating performance review:**")
+            st.write(row["REVIEW_EVIDENCE"])
+            st.caption(
+                f"comp-ratio {row['COMP_RATIO']} (below 0.85 = underpaid) · "
+                f"rating {row['RATING_SCORE']} (4+ = strong performer) · "
+                f"{row['DEPARTMENT_CODE']}"
+            )
+else:
+    st.info("No corroborated flight-risk rows — no negative interview landed on an underpaid "
+            "high performer in this dataset.")
+
+st.divider()
