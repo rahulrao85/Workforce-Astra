@@ -5,8 +5,9 @@
 and up front in the submission brief, not hidden.
 **Submission window:** 13-Sep-2026 – 04-Oct-2026 (MVP/prototype stage)
 **Status (25-Sep-2026):** core build complete and live-verified — 5 Semantic Views, Cortex Analyst
-clean on all 5, Cortex Search service ACTIVE, 25/25 regression tests, 3 scheduled Tasks, 6-tool mock
-MCP server, Streamlit portal deployed. Demo video not yet recorded; submission not yet filed.
+clean on all 5, Cortex Search service ACTIVE, 25/25 regression tests, 3 scheduled Tasks, 2 reusable
+CoCo skills, 6-tool mock MCP server, Streamlit portal deployed, one-command rebuild tested on a
+scratch database. Demo video not yet recorded; submission not yet filed.
 
 ## One-line pitch
 Off-the-shelf HRMS platforms are rigid and suffer the same metric-divergence problem the
@@ -60,6 +61,25 @@ Five additional governed domains on top of the core, all verified live and surfa
 | Employee voice | `employee_voice_360` | 18 interviews scored; **career_growth is the top reason (6 of 18)**; **5 corroborated flight risks** | **Snowpark Python**, Cortex `SENTIMENT` + `AI_CLASSIFY` |
 | Comp band architecture | `band_health_360` | **0 red circles — but 37 of 150 (24.7%) paid below their own band minimum**; M1/IC5 ranges overlap **71%** | guardrail (reports, never proposes), quarterly Task, 6th MCP tool |
 | Metric governance | registry + tests | regression suite **25/25 PASS**, scheduled daily | 3 scheduled Tasks + guardrails |
+
+### Two reusable CoCo skills
+The submission form asks for 2–3 modular skills, and reusable/shareable skills are the headline
+ingenuity signal — so there are two, both discoverable by CoCo in this project:
+
+| Skill | Invoke | What it does |
+|---|---|---|
+| `workforce-astra-data-gen` | `$workforce-astra-data-gen` | Generate → verify → stage → load all 4 synthetic CSVs. `--verify` is a hard gate, not a report. |
+| `workforce-astra-governance-check` | `$workforce-astra-governance-check` | Run the regression suite and **explain** it: PASS/FAIL, the failing metric's **owner**, and a deterministic vs model-dependent split. |
+
+The second one is deliberately more than a test runner. It exists because of a real gap it found:
+12 tested metrics had **no registry entry at all** — they were being regression-tested while nobody
+owned their definition, which is precisely the hole the registry exists to close. The registry now
+carries 29 entries covering every tested metric, and the script keeps checking, reporting any metric
+that is tested but unregistered. Its `model_dependent` split also exists to stop a future agent
+"fixing" a model-dependent failure by pasting in whatever number came back.
+
+Porting it to another project needs three objects and two names changed: `run_metric_tests()`,
+`metric_test_results`, and `metric_registry`. Nothing else is Workforce-Astra-specific.
 
 ### Comp band architecture — reporting an inconvenient truth
 `sql/09_band_architecture.sql`. Structural comp, deliberately distinct from the demographic pay-equity
@@ -224,7 +244,9 @@ afterthought.
 | `data/generate_synthetic_data.py` | Generates the 3 CSVs with the deliberate FTE/contractor conflict. `--verify` asserts the demo invariants |
 | `data/generate_voice_transcripts.py` | Generates the 18 hand-authored stay/exit interview transcripts. `--verify` asserts length spread, no templating, and that the cross-signal is demonstrable |
 | `scripts/load_workforce_data.py` | One-shot pipeline: generate → verify → stage (space-free path) → emit/run the load SQL. **Owns the single CSV `FILE_FORMAT` and the single load path for all 4 CSVs** |
-| `.cortex/skills/workforce-astra-data-gen/SKILL.md` | **CoCo CLI skill 1** — invoke as `$workforce-astra-data-gen` |
+| `.cortex/skills/workforce-astra-data-gen/SKILL.md` | **CoCo CLI skill 1** — invoke as `$workforce-astra-data-gen`. Generate, verify, stage, load |
+| `.cortex/skills/workforce-astra-governance-check/SKILL.md` | **CoCo CLI skill 2** — invoke as `$workforce-astra-governance-check`. Run and *explain* the regression suite, name the owner of any failing metric, and separate deterministic from model-dependent failures |
+| `scripts/governance_check.py` | Backing script for skill 2. Deterministic PASS/FAIL, non-zero exit, `--json`, and an unregistered-metric check. Portable to any project with the same three tables |
 | `mcp_server/workforce_astra_mcp.py` | Mock MCP action server (6 tools). `--selftest` runs without a client and exits 0 |
 | `sql/01_create_tables.sql` | Raw table DDL |
 | `sql/02_semantic_view.sql` | `employee_360` Semantic View + 5 verified queries (incl. the governed-vs-naive comparison) |

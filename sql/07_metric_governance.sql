@@ -52,7 +52,23 @@ INSERT OVERWRITE INTO metric_registry (metric_id, metric_name, domain, owner_rol
   ('M-014','band_below_range_count','Comp Architecture','COMP','Employees whose base_pay is BELOW their own published band minimum. A range-compliance exception, not a market position',TRUE,'v1',FALSE),
   ('M-015','band_red_circle_count','Comp Architecture','COMP','Employees whose base_pay exceeds their published band maximum',TRUE,'v1',FALSE),
   ('M-016','band_wtd_avg_range_penetration','Comp Architecture','COMP','Headcount-weighted mean of (base_pay - min_base) / (max_base - min_base) across the whole workforce',TRUE,'v1',FALSE),
-  ('M-017','band_m1_ic5_overlap_index','Comp Architecture','COMP','Overlap between the M1 and IC5 ranges as a fraction of the M1 range width. 0 = disjoint, 1 = identical. High values mean the architecture cannot separate the two levels on pay',TRUE,'v1',FALSE);
+  ('M-017','band_m1_ic5_overlap_index','Comp Architecture','COMP','Overlap between the M1 and IC5 ranges as a fraction of the M1 range width. 0 = disjoint, 1 = identical. High values mean the architecture cannot separate the two levels on pay',TRUE,'v1',FALSE),
+  -- Completeness pass, 25-Sep-2026. scripts/governance_check.py joins results to this registry to
+  -- name an owner on failure, and it revealed that 12 TESTED metrics had no registry row at all --
+  -- i.e. they were being regression-tested but nobody owned their definition. That is precisely
+  -- the gap this table exists to close, so the registry now covers every tested metric.
+  ('M-018','manager_count','Org Design','PEOPLE_OPS','Employees with at least one direct report',TRUE,'v1',FALSE),
+  ('M-019','women_avg_comp_ratio','Pay Equity','LEGAL','Mean comp-ratio of active FTE women',TRUE,'v1',FALSE),
+  ('M-020','men_avg_comp_ratio','Pay Equity','LEGAL','Mean comp-ratio of active FTE men',TRUE,'v1',FALSE),
+  ('M-021','voice_exit_transcript_count','Employee Voice','PEOPLE_OPS','Transcripts from exit interviews',TRUE,'v1',TRUE),
+  ('M-022','voice_stay_transcript_count','Employee Voice','PEOPLE_OPS','Transcripts from stay interviews',TRUE,'v1',TRUE),
+  ('M-023','voice_sentiment_out_of_range','Employee Voice','PEOPLE_OPS','Transcripts whose sentiment score falls outside the documented [-1, +1] contract. Must be zero',TRUE,'v1',TRUE),
+  ('M-024','voice_multi_reason_transcript_count','Employee Voice','PEOPLE_OPS','Transcripts the classifier assigned more than one reason to',TRUE,'v1',TRUE),
+  ('M-025','voice_career_growth_primary_count','Employee Voice','PEOPLE_OPS','Transcripts whose primary classified reason is lack of career progression. The headline voice finding',TRUE,'v1',TRUE),
+  ('M-026','band_total_headcount','Comp Architecture','COMP','Employees covered by the band audit. Must equal the governed workforce headcount',TRUE,'v1',FALSE),
+  ('M-027','band_below_range_rate','Comp Architecture','COMP','Share of employees paid below their own band minimum',TRUE,'v1',FALSE),
+  ('M-028','band_in_floor_cluster_count','Comp Architecture','COMP','Employees inside their range but in its bottom 10%',TRUE,'v1',FALSE),
+  ('M-029','band_findings_total','Comp Architecture','COMP','Rows written by run_band_review(). Doubles as a guardrail test: it fails if anyone adds a proposed pay value to the findings table',TRUE,'v1',FALSE);
 
 -- 3. Golden-value tests
 INSERT OVERWRITE INTO metric_regression_tests (test_id, metric_name, sql_text, expected_value, tolerance) VALUES
