@@ -1,8 +1,11 @@
 # MCP tool definitions
 
-All five are **mocked/stubbed for the demo** — no real Workday tenant or production Slack workspace.
+All six are **mocked/stubbed for the demo** — no real Workday tenant or production Slack workspace.
 State this explicitly in the submission: these tools draft/preview/notify, they never apply a real
 HR action directly. Every tool supports `dry_run` (default true) and rejects malformed input.
+
+`audit_comp_bands` is the one that goes furthest on the guardrail: it has **no output field that
+could be mistaken for a pay recommendation**, and no way to be asked for one.
 
 ```json
 {
@@ -92,7 +95,26 @@ HR action directly. Every tool supports `dry_run` (default true) and rejects mal
 }
 ```
 
+```json
+{
+  "name": "audit_comp_bands",
+  "description": "Comp band architecture auditor. Mirrors WORKFORCE_ASTRA.RAW.run_band_review. REPORTS employees paid outside their published band range or clustered at the floor. REPORTS ONLY -- never returns a proposed or adjusted pay value and never writes to any pay field, because setting band architecture is a human decision with legal weight.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "band_code": { "type": "string", "enum": ["IC3", "IC4", "IC5", "M1", "M2"] },
+      "flags": {
+        "type": "array",
+        "items": { "type": "string", "enum": ["BELOW_RANGE_MIN", "RED_CIRCLE", "IN_FLOOR_CLUSTER"] },
+        "description": "Which structural flags to return. Any subset; at least one."
+      }
+    },
+    "required": ["band_code"]
+  }
+}
+```
+
 Implement as a tiny local MCP server (stdio or SSE) returning a mocked success payload — ask
-CoCo CLI to scaffold a Python MCP server with these two tool schemas as a starting point.
+CoCo CLI to scaffold a Python MCP server with these tool schemas as a starting point.
 `manager_slack_id` is already present as a mock field on `raw_workday_workers` in the synthetic
 data, so no separate org-lookup table is needed for this.

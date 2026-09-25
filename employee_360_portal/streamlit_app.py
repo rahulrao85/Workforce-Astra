@@ -365,7 +365,102 @@ st.caption(
 
 st.divider()
 
-# ── Section 8: Employee Voice — sentiment & reason classification ────────────
+# ── Section 8: Comp Band Architecture ────────────────────────────────────────
+st.header("Comp Band Architecture Auditor")
+st.markdown(
+    "Structural comp, not demographic: **where people actually sit inside their published range**. "
+    "Distinct from the pay-equity auditor above, which asks whether a gap is explained by band mix. "
+    "The auditor below reports outliers only — it never proposes a pay value."
+)
+
+if st.button("Run band review (writes findings, proposes nothing)", use_container_width=False):
+    with st.spinner("Running run_band_review() …"):
+        run_query("CALL WORKFORCE_ASTRA.RAW.run_band_review()")
+    st.success("Band review complete. Findings below are from the fresh run.")
+
+bh_sql = """
+SELECT total_headcount, below_range_count, red_circle_count, in_floor_cluster_count,
+       wtd_avg_range_penetration, avg_compression_ratio,
+       below_range_rate, red_circle_rate, in_floor_cluster_pct
+FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360
+     METRICS band.total_headcount, band.below_range_count, band.red_circle_count,
+             band.in_floor_cluster_count, band.wtd_avg_range_penetration,
+             band.avg_compression_ratio, band.below_range_rate,
+             band.red_circle_rate, band.in_floor_cluster_pct)
+"""
+bh = run_query(bh_sql)
+if not bh.empty:
+    r = bh.iloc[0]
+    b1, b2, b3, b4 = st.columns(4)
+    b1.metric("Below range minimum", f"{int(r['BELOW_RANGE_COUNT'])}", help="base_pay < the band's own min_base")
+    b2.metric("Red circle (above max)", f"{int(r['RED_CIRCLE_COUNT'])}")
+    b3.metric("Clustered at floor", f"{int(r['IN_FLOOR_CLUSTER_COUNT'])}", help="in range, but bottom 10% of it")
+    b4.metric("Avg range penetration", f"{float(r['WTD_AVG_RANGE_PENETRATION']):.0%}")
+    st.warning(
+        f"**{float(r['BELOW_RANGE_RATE']):.1%} of the company ({int(r['BELOW_RANGE_COUNT'])} of "
+        f"{int(r['TOTAL_HEADCOUNT'])}) is paid below its own published band minimum.** "
+        "That is a range-compliance exception, not a market position — and it is reported as measured."
+    )
+    st.caption(
+        f"Red-circle rate is {float(r['RED_CIRCLE_RATE']):.1%} — nobody is paid above their band maximum. "
+        f"Average compression ratio {float(r['AVG_COMPRESSION_RATIO']):.3f} "
+        "(range width relative to range midpoint; higher = more compressed)."
+    )
+
+byb_sql = """
+SELECT band_code, total_headcount AS headcount, below_range_count, red_circle_count,
+       in_floor_cluster_count, wtd_avg_range_penetration, avg_compression_ratio
+FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360
+     DIMENSIONS band.band_code
+     METRICS band.total_headcount, band.below_range_count, band.red_circle_count,
+             band.in_floor_cluster_count, band.wtd_avg_range_penetration,
+             band.avg_compression_ratio)
+ORDER BY band_code
+"""
+byb = run_query(byb_sql)
+ovl_sql = """
+SELECT lower_band, upper_band, ROUND(overlap_index, 4) AS overlap_index
+FROM WORKFORCE_ASTRA.RAW.band_range_overlap
+ORDER BY overlap_index DESC
+"""
+ovl = run_query(ovl_sql)
+if not byb.empty:
+    c_left, c_right = st.columns([3, 2])
+    with c_left:
+        st.markdown("**Per band:**")
+        st.dataframe(byb, use_container_width=True, height=280)
+    with c_right:
+        st.markdown("**Adjacent-band overlap** (1.0 = identical ranges):")
+        if not ovl.empty:
+            st.dataframe(ovl, use_container_width=True, height=280)
+        st.caption(
+            "Bands are ordered by mid-point, so these are the *adjacent* pairs. A high overlap means "
+            "pay alone cannot tell two levels apart — which is an architecture problem, not a "
+            "promotion problem."
+        )
+
+find_sql = """
+SELECT flag, COUNT(*) AS employees,
+       ROUND(MIN(range_penetration), 3) AS min_penetration,
+       ROUND(MAX(range_penetration), 3) AS max_penetration
+FROM WORKFORCE_ASTRA.RAW.band_review_findings
+GROUP BY flag
+ORDER BY employees DESC
+"""
+fd = run_query(find_sql)
+if not fd.empty:
+    st.markdown("**Findings from the audit** (quarterly Task `band_architecture_quarterly` also runs this):")
+    st.dataframe(fd, use_container_width=True)
+    st.caption(
+        "**Guardrail:** the audit reports and never proposes. There is deliberately no "
+        "`proposed_pay` column anywhere in `band_review_findings`, and the matching MCP tool "
+        "`audit_comp_bands` cannot be asked for one. Setting a band is a human decision with legal "
+        "weight."
+    )
+
+st.divider()
+
+# ── Section 9: Employee Voice — sentiment & reason classification ────────────
 st.header("Employee Voice — Sentiment & Reason")
 st.markdown(
     "Stay and exit interview transcripts, scored by a **Snowpark Python** stored procedure that "

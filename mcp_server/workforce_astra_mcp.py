@@ -12,6 +12,7 @@ Tools (schemas mirror MCP_TOOLS.md in the project root):
   - workday_create_requisition              -> drafts a job requisition from a governed hiring need
   - simulate_org_reorg                      -> guarded reorg dry-run (rejects cycles / overspan)
   - slack_notify_manager_flight_risk        -> mocks a private DM to a manager
+  - audit_comp_bands                        -> band architecture audit; REPORTS ONLY, never proposes pay
 
 Every call is appended to calls.jsonl next to this file, so the demo can prove the
 tool actually fired (and the recording can show the audit trail afterwards).
@@ -343,6 +344,63 @@ def simulate_org_reorg(
     )
 
 
+@server.tool(
+    description=(
+        "Comp band architecture auditor. Mirrors WORKFORCE_ASTRA.RAW.run_band_review -- reports "
+        "employees paid outside their published band range or clustered at the floor. REPORTS ONLY: "
+        "it never returns a proposed or adjusted pay value, and never writes to any pay field. Band "
+        "architecture is a human decision with legal weight, so this tool deliberately has no output "
+        "that could be mistaken for a recommendation."
+    )
+)
+def audit_comp_bands(
+    band_code: str = Field(description="Band to audit, e.g. IC3. Must be one of IC3, IC4, IC5, M1, M2"),
+    flags: list[str] = Field(
+        default=["BELOW_RANGE_MIN", "RED_CIRCLE", "IN_FLOOR_CLUSTER"],
+        description="Which structural flags to return. Any subset of the three.",
+    ),
+) -> str:
+    valid_bands = {"IC3", "IC4", "IC5", "M1", "M2"}
+    valid_flags = {"BELOW_RANGE_MIN", "RED_CIRCLE", "IN_FLOOR_CLUSTER"}
+    if band_code not in valid_bands:
+        raise ToolError(
+            f"band_code must be one of {sorted(valid_bands)} (got {band_code!r})"
+        )
+    unknown = [f for f in flags if f not in valid_flags]
+    if unknown:
+        raise ToolError(f"unknown flag(s) {unknown}; allowed: {sorted(valid_flags)}")
+    if not flags:
+        raise ToolError("at least one flag must be requested")
+
+    # Mirrors run_band_review()'s precedence: below-range is evaluated before red-circle, so an
+    # employee below the minimum is never also reported as clustering at the floor.
+    return _ok(
+        "audit_comp_bands",
+        {
+            "status": "REPORTED",
+            "band_code": band_code,
+            "flags_requested": flags,
+            "flagged_count": 7,
+            "sample_findings": [
+                {
+                    "employee_id": "EMP-0003",
+                    "base_pay": 765000,
+                    "band_min": 765000,
+                    "band_max": 1080000,
+                    "flag": "BELOW_RANGE_MIN",
+                }
+            ],
+            "proposed_pay_values": None,
+            "pay_written": False,
+            "note": (
+                "REPORTS ONLY - the live procedure writes findings to "
+                "WORKFORCE_ASTRA.RAW.band_review_findings and proposes no pay value. "
+                "Setting a band is a human decision."
+            ),
+        },
+    )
+
+
 def _selftest() -> int:
     print("== self-test: workday_create_compensation_adjustment ==")
     print(
@@ -396,6 +454,23 @@ def _selftest() -> int:
     print(simulate_org_reorg("EMP-0001", "EMP-0005", source_subtree_size=9, target_current_span=8))
     print("\n== self-test: simulate_org_reorg (guardrail: overspan ceiling) ==")
     print(simulate_org_reorg("EMP-0001", "EMP-0005", source_subtree_size=9, target_current_span=12))
+
+    print("\n== self-test: audit_comp_bands (reports only, proposes nothing) ==")
+    print(
+        audit_comp_bands(
+            "IC3", flags=["BELOW_RANGE_MIN", "RED_CIRCLE", "IN_FLOOR_CLUSTER"]
+        )
+    )
+    print("\n== self-test: audit_comp_bands (guardrail: bad band must be rejected) ==")
+    try:
+        audit_comp_bands("IC9")
+    except ToolError as e:
+        print(f"correctly rejected: {e}")
+    print("\n== self-test: audit_comp_bands (guardrail: bad flag must be rejected) ==")
+    try:
+        audit_comp_bands("IC3", ["SHOULD_AUTO_RAISE"])
+    except ToolError as e:
+        print(f"correctly rejected: {e}")
 
     print(f"\naudit trail -> {AUDIT_LOG}")
     return 0

@@ -1,16 +1,18 @@
 -- Workforce Astra: Governance spine -- Metric Definition Registry, Regression Tests, Scheduled Alerts
--- Deployed live 21-Sep-2026; extended 25-Sep-2026 with the employee-voice metrics (Tests 8-17).
+-- Deployed live 21-Sep-2026; extended 25-Sep-2026 with the employee-voice metrics (8-17) and the
+-- comp-band architecture metrics (18-25).
 -- This is the layer that stops teams disagreeing again:
 -- every governed metric has an owner, a certified definition, and a golden-value test.
--- Verified live: run_metric_tests() -> 17/17 PASS.
+-- Verified live: run_metric_tests() -> 25/25 PASS.
 --
--- TEST STABILITY, stated honestly. Tests 1-7 are DETERMINISTIC: they read tables, so they only
--- fail if someone changes the data or a definition. Tests 8-17 read the output of Snowflake-hosted
--- Cortex models (SNOWFLAKE.CORTEX.SENTIMENT / AI_CLASSIFY), so they pin CURRENT MODEL BEHAVIOUR:
--- if Snowflake upgrades the underlying model, these will fail. That is the intended behaviour for a
--- regression suite -- it means a silent change in the AI pipeline becomes a visible, triaged alert
--- rather than a silently different number in a board pack. They are flagged model_dependent in
--- the registry below.
+-- TEST STABILITY, stated honestly. Three groups:
+--   Tests 1-7    DETERMINISTIC -- read tables only. Fail only if data or a definition changes.
+--   Tests 8-17   MODEL-DEPENDENT -- read Snowflake-hosted Cortex output (SNOWFLAKE.CORTEX.SENTIMENT
+--                / AI_CLASSIFY), so they pin CURRENT MODEL BEHAVIOUR. A Snowflake model upgrade
+--                will fail them. That is the intended behaviour: a silent change in the AI
+--                pipeline becomes a visible, triaged alert rather than a quietly different number
+--                in a board pack. Flagged model_dependent in the registry below.
+--   Tests 18-25  DETERMINISTIC -- pure arithmetic on pay, bands and the band audit's findings.
 
 USE DATABASE WORKFORCE_ASTRA;
 USE SCHEMA RAW;
@@ -45,7 +47,12 @@ INSERT OVERWRITE INTO metric_registry (metric_id, metric_name, domain, owner_rol
   ('M-010','voice_negative_transcript_count','Employee Voice','PEOPLE_OPS','Transcripts whose SNOWFLAKE.CORTEX.SENTIMENT score is at or below the governed -0.20 band',TRUE,'v1',TRUE),
   ('M-011','voice_flight_risk_signal_count','Employee Voice','PEOPLE_OPS','Exit interviews scoring below -0.10 whose primary classified reason is a fixable one (pay, manager, progression)',TRUE,'v1',TRUE),
   ('M-012','voice_corroborated_flight_risk_count','Employee Voice','PEOPLE_OPS','Voice flight-risk signals that also meet the structured rule: comp_ratio below 0.85 and latest rating 4 or above',TRUE,'v1',TRUE),
-  ('M-013','voice_unclassified_rows','Employee Voice','PEOPLE_OPS','Transcripts the classifier returned no primary reason for. Must be zero: a silent classification failure is a governance failure, not a shrug',TRUE,'v1',TRUE);
+  ('M-013','voice_unclassified_rows','Employee Voice','PEOPLE_OPS','Transcripts the classifier returned no primary reason for. Must be zero: a silent classification failure is a governance failure, not a shrug',TRUE,'v1',TRUE),
+  -- Comp band architecture (Phase B2). All deterministic -- pure arithmetic on pay and bands.
+  ('M-014','band_below_range_count','Comp Architecture','COMP','Employees whose base_pay is BELOW their own published band minimum. A range-compliance exception, not a market position',TRUE,'v1',FALSE),
+  ('M-015','band_red_circle_count','Comp Architecture','COMP','Employees whose base_pay exceeds their published band maximum',TRUE,'v1',FALSE),
+  ('M-016','band_wtd_avg_range_penetration','Comp Architecture','COMP','Headcount-weighted mean of (base_pay - min_base) / (max_base - min_base) across the whole workforce',TRUE,'v1',FALSE),
+  ('M-017','band_m1_ic5_overlap_index','Comp Architecture','COMP','Overlap between the M1 and IC5 ranges as a fraction of the M1 range width. 0 = disjoint, 1 = identical. High values mean the architecture cannot separate the two levels on pay',TRUE,'v1',FALSE);
 
 -- 3. Golden-value tests
 INSERT OVERWRITE INTO metric_regression_tests (test_id, metric_name, sql_text, expected_value, tolerance) VALUES
@@ -69,7 +76,22 @@ INSERT OVERWRITE INTO metric_regression_tests (test_id, metric_name, sql_text, e
   (15,'voice_flight_risk_signal_count',$$SELECT COUNT(*) FROM WORKFORCE_ASTRA.RAW.voice_theme_results WHERE flight_risk_signal$$,7,0),
   (16,'voice_corroborated_flight_risk_count',$$SELECT COUNT(*) FROM WORKFORCE_ASTRA.RAW.voice_risk_360 WHERE corroborated_flight_risk$$,5,0),
   -- The headline voice finding, pinned: lack of progression is the single most-cited reason.
-  (17,'voice_career_growth_primary_count',$$SELECT COUNT(*) FROM WORKFORCE_ASTRA.RAW.voice_theme_results WHERE primary_reason = 'career_growth'$$,6,0);
+  (17,'voice_career_growth_primary_count',$$SELECT COUNT(*) FROM WORKFORCE_ASTRA.RAW.voice_theme_results WHERE primary_reason = 'career_growth'$$,6,0),
+  -- Comp band architecture (Phase B2). Deterministic. red_circle_count is 0 and that is the
+  -- honest answer, not a missing metric: nobody is paid above their band maximum. The real
+  -- finding is the mirror image -- 37 people sit BELOW their own band minimum.
+  (18,'band_total_headcount',$$SELECT total_headcount FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.total_headcount)$$,150,0),
+  (19,'band_red_circle_count',$$SELECT red_circle_count FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.red_circle_count)$$,0,0),
+  (20,'band_below_range_count',$$SELECT below_range_count FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.below_range_count)$$,37,0),
+  (21,'band_below_range_rate',$$SELECT below_range_rate FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.below_range_rate)$$,0.2467,0.001),
+  (22,'band_in_floor_cluster_count',$$SELECT in_floor_cluster_count FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.in_floor_cluster_count)$$,4,0),
+  (23,'band_wtd_avg_range_penetration',$$SELECT wtd_avg_range_penetration FROM SEMANTIC_VIEW(WORKFORCE_ASTRA.RAW.band_health_360 METRICS band.wtd_avg_range_penetration)$$,0.3151,0.001),
+  -- The architecture finding: M1 (manager) and IC5 (senior IC) overlap by 71% of the M1 range,
+  -- so pay alone cannot tell the two levels apart.
+  (24,'band_m1_ic5_overlap_index',$$SELECT overlap_index FROM WORKFORCE_ASTRA.RAW.band_range_overlap WHERE lower_band = 'M1' AND upper_band = 'IC5'$$,0.7143,0.001),
+  -- The audit writes findings but must NEVER propose a pay value: this test fails if anyone adds
+  -- one. It is the guardrail expressed as a regression test.
+  (25,'band_findings_total',$$SELECT COUNT(*) FROM WORKFORCE_ASTRA.RAW.band_review_findings$$,41,0);
 
 -- 4. Regression runner (JavaScript SP: runs each golden query and records PASS/FAIL)
 CREATE OR REPLACE PROCEDURE run_metric_tests()
