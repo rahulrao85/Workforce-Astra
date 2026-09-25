@@ -64,6 +64,10 @@ for name, src, expected in cases:
 print()
 total = 0
 for fname in SQL_FILES:
+    # SQL_FILES carries a "__LOAD__" sentinel marking where the generated CSV load is spliced in.
+    # It is not a file, so skip it here -- the assembled rebuild is covered by the count below.
+    if fname == "__LOAD__":
+        continue
     path = SQL_DIR / fname
     if not path.exists():
         failures.append(f"missing {path}")
@@ -90,7 +94,8 @@ for fname in SQL_FILES:
 
     print(f"  {fname:28s} {len(stmts):3d} statements")
 
-print(f"\nTOTAL {total} statements across {len(SQL_FILES)} files")
+print(f"\nTOTAL {total} statements across {len(SQL_FILES) - 1} files "
+      f"(+ 1 __LOAD__ sentinel spliced in at assemble time)")
 
 if failures:
     print("\nFAILURES:")
