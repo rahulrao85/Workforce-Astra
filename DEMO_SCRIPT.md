@@ -68,9 +68,10 @@ department" -- and note the SQL it returns is governed, not ad-hoc. Then run `SH
 SCHEMA WORKFORCE_ASTRA.RAW;` to show both scheduled automations `started`.
 
 **3:55-4:15 -- Close**
-State the stack: three Semantic Views, Cortex Analyst, Cortex Search, CoCo CLI skills,
-Streamlit-in-Snowflake, MCP (5 tools), and scheduled governance Tasks. One line on roadmap
-(live Slack/Workday wiring behind an EAI) without overclaiming what's built today.
+State the stack, and only what is live: three Semantic Views (all three answer in Cortex Analyst
+with 0 warnings), a Cortex Search service ACTIVE over 127 review notes, CoCo CLI skills,
+Streamlit-in-Snowflake, a 5-tool mock MCP server (`dry_run=true`, nothing is sent anywhere), and
+2 scheduled governance Tasks. Say out loud that the Slack/Workday calls are mocked, not live.
 
 ## Recording notes
 

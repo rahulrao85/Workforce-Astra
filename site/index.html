@@ -109,12 +109,14 @@
 
 <div class="container container-narrow" style="padding-top:0;">
   <div class="status-banner">
-    <strong>Honest status, 16-Sep-2026:</strong> everything on this page runs against the real
-    150-employee synthetic dataset committed to the repo, computed client-side in your browser
-    using the exact same governance logic defined in the project's Snowflake Semantic View
-    (see <code>sql/02_semantic_view.sql</code>). It is not a live call to Cortex Analyst — the
-    Snowflake trial account is currently blocked by a network policy pending a support ticket.
-    Once that clears, this same logic runs for real inside Snowflake via CoCo CLI.
+    <strong>Honest status, 25-Sep-2026:</strong> the Snowflake side of this project is live and
+    verified — three Semantic Views deployed, Cortex Analyst answering all three with zero
+    warnings, the Cortex Search service ACTIVE over 127 review notes, the regression suite passing
+    7/7, and the Streamlit portal running inside Snowflake. <em>This page</em> is a static file: it
+    computes the same numbers in your browser from the 150-employee synthetic dataset committed to
+    the repo, using the governance logic defined in <code>sql/02_semantic_view.sql</code>, so it is a
+    client-side illustration rather than a live call into Snowflake. The MCP action tools are mocked
+    with <code>dry_run=true</code> — no Slack or Workday message is ever sent.
   </div>
 </div>
 
@@ -144,8 +146,9 @@
 <section class="container container-narrow reveal">
   <h2>Ask the governed Semantic View</h2>
   <p style="color:var(--text-secondary); margin-bottom: var(--space-5);">
-    These are the 6 <code>AI_VERIFIED_QUERIES</code> registered on <code>employee_360</code>.
-    Click one — the answer and the SQL that produced it come from the real dataset, live.
+    Six illustrative queries, written the way the Semantic View answers them. Click one — the
+    answer and its SQL are computed in your browser from the same 150 rows Snowflake holds. Inside
+    Snowflake these same questions resolve through <code>employee_360</code> with the SQL visible.
   </p>
   <div class="chip-row" id="query-chips"></div>
   <div class="card answer-card" id="answer-card">
@@ -168,8 +171,8 @@
   <h2>What's actually running underneath</h2>
   <div class="grid">
     <div class="card">
-      <h3>Governed Semantic View</h3>
-      <p style="color:var(--text-secondary); font-size:var(--text-sm);">3 tables, 3 metrics, 6 verified queries. Every question resolves through <code>employee_360</code>, never raw tables.</p>
+      <h3>Three governed Semantic Views</h3>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);"><code>employee_360</code>, <code>org_health_360</code> and <code>pay_equity_360</code>. Every governed question resolves through a view, never a raw table. All three answer in Cortex Analyst with 0 warnings.</p>
     </div>
     <div class="card">
       <h3>CoCo CLI skill</h3>
@@ -177,7 +180,11 @@
     </div>
     <div class="card">
       <h3>Mock MCP action server</h3>
-      <p style="color:var(--text-secondary); font-size:var(--text-sm);">Two tools — Slack manager alert, Workday comp-adjustment draft — protocol-tested with the real MCP client.</p>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);">Five tools — Slack manager alert, Workday comp-adjustment draft, promotion nomination, requisition, and a guarded reorg simulator — protocol-tested with the real MCP client, <code>dry_run</code> defaults to true.</p>
+    </div>
+    <div class="card">
+      <h3>Cortex Search</h3>
+      <p style="color:var(--text-secondary); font-size:var(--text-sm);">Live service, indexing and serving both <code>ACTIVE</code> over 127 review notes (<code>arctic-embed-m-v1.5</code>). Returns the cited review text behind a flight-risk call. Verified 25-Sep-2026.</p>
     </div>
   </div>
   <div class="stack-tags">
@@ -191,7 +198,7 @@
 
 <footer class="site">
   <div class="container container-narrow">
-    Workforce Astra — built for the Snowflake CoCo CLI Hackathon (GCC Edition), 16-Sep-2026.
+    Workforce Astra — built for the Snowflake CoCo CLI Hackathon (GCC Edition), 25-Sep-2026.
     <br><a href="https://github.com/rahulrao85/Workforce-Astra" target="_blank" rel="noopener">github.com/rahulrao85/Workforce-Astra</a>
   </div>
 </footer>

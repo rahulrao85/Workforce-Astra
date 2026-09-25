@@ -1,5 +1,13 @@
 # Copy-paste prompts to run OpenCode and Antigravity in parallel
 
+> **SUPERSEDED — historical snapshot from 16-Sep-2026, kept for provenance only. Do not follow
+> these instructions.** Every "the account is blocked by a network policy" statement in this file
+> was true on 16-Sep-2026 and is **false today**. As of 25-Sep-2026 the CoCo CLI trial account
+> (ST42987 / MUNGIIX si60728) is live and fully working, all SQL and deploys run through
+> `cortex -c workforce-astra-keypair -p "..." --bypass`, and three Semantic Views, the Cortex Search
+> service, 7 regression tests, 2 scheduled tasks and the Streamlit portal are deployed. For current
+> state see README.md.
+
 Split so there's no overlap. Both can start immediately, in parallel with Snowflake account
 setup in SETUP.md -- neither piece below needs the live account to begin.
 
