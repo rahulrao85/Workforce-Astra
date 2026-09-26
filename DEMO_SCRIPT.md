@@ -31,7 +31,7 @@ Run these in a normal PowerShell window, not the one you'll record.
    - `--only-explicit-mcp-servers` hides an unrelated aws-mcp error banner.
    - If `cortex` isn't found, use `& "$env:LOCALAPPDATA\cortex\bin\cortex.cmd" -c workforce-astra-keypair --only-explicit-mcp-servers`.
    - If a browser sign-in tab opens, CoCo's agent connection was reset. See the access guide.
-5. **Warm-up (don't record).** Type `what is my current role?` and check you get ACCOUNTADMIN. Then type `/clear` (or restart CoCo) so the recorded session starts clean.
+5. **Warm-up (don't record).** Type `what is my current role?` and check you get ACCOUNTADMIN. Then exit CoCo and relaunch it with the same command, so the recorded session starts clean.
 6. **Screen:** close notifications (Windows Focus / Do Not Disturb), hide the taskbar clock if you like, and close any window that shows a personal email, bank or employer name.
 7. **Recorder:** OBS or Xbox Game Bar (`Win + Alt + R`), 1080p, microphone on. Do a 5-second test clip and play it back to check the audio.
 
