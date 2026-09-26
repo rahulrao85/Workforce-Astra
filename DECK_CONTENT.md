@@ -1,6 +1,6 @@
 # Deck content: slide by slide (draft for the Hack2Skill template)
 
-The official template hasn't arrived yet. This follows the usual Hack2Skill slide order. When the template lands, paste each block into the matching slide and drop or merge any slide the template doesn't have. Export to **PDF under 5 MB** (compress screenshots to about 1600 px wide JPG).
+Superseded by the built deck: `deck/Workforce_Astra_Submission_Deck.pdf` (from `scripts/build_deck.py` on the official template). Kept as the source notes. Export to **PDF under 5 MB** (compress screenshots to about 1600 px wide JPG).
 
 All numbers are live Snowflake results on synthetic data, verified 26-Sep-2026. Keep the phrase "synthetic data" visible somewhere on the deck, because the T&Cs forbid misleading claims.
 

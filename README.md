@@ -271,6 +271,7 @@ afterthought.
 | `SUBMISSION_BRIEF.md` | Ready-to-paste MVP brief, states the Employee 360 reframe explicitly |
 | `DEMO_SCRIPT.md` | Final recording script: pre-flight, verbatim narration per beat, post-recording and submission steps |
 | `DECK_CONTENT.md` | Slide-by-slide deck content for the Hack2Skill template |
+| `deck/Workforce_Astra_Submission_Deck.pdf` / `.pptx` | The submission deck on the official template (10 slides). Rebuilt by `scripts/build_deck.py`, which needs the template `.pptx` in this folder (not committed) |
 | `PROMPTS_FOR_AGENTS.md` | Copy-paste prompts for OpenCode and Antigravity |
 | `requirements.txt` | `faker` (data gen) + `mcp` (mock MCP server — 2.x API) |
 
