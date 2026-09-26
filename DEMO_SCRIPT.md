@@ -135,7 +135,7 @@ Stop recording.
    - Challenge: **Customer 360 and Next Best Action Engine**
    - Prototype/MVP brief: paste from `SUBMISSION_BRIEF.md` (1019 characters, under the 1024 limit)
    - Demo video: the unlisted YouTube link
-   - Deck: PDF under 5 MB, built on the Hack2Skill template from `DECK_CONTENT.md`
+   - Deck: `deck/Workforce_Astra_Submission_Deck.pdf` (already built, 0.57 MB). First put the YouTube link on slide 9 of the `.pptx` and re-export to PDF
    - GitHub: https://github.com/rahulrao85/Workforce-Astra
    - Live page (if there's a field for it): https://workforce-astra.rahulrao.in
    - Make sure your profile is complete before you press submit.

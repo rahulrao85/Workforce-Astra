@@ -9,7 +9,8 @@ clean on all 5, Cortex Search service ACTIVE, 25/25 regression tests, 3 schedule
 CoCo skills, 6-tool mock MCP server, Streamlit portal deployed, one-command rebuild tested on a
 scratch database. **26-Sep-2026:** full recording flow rehearsed end to end through CoCo CLI;
 landing page (https://workforce-astra.rahulrao.in) extended with dated Snowflake snapshots of all five
-domains. Demo video not yet recorded; submission not yet filed.
+domains; submission deck built on the official template (`deck/`). **Build complete** — only the demo video
+recording and the form submission remain.
 
 ## One-line pitch
 Off-the-shelf HRMS platforms are rigid and suffer the same metric-divergence problem the
