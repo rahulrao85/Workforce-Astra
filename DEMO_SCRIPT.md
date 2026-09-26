@@ -35,7 +35,7 @@ Run these in a normal PowerShell window, not the one you'll record.
 6. **Screen:** close notifications (Windows Focus / Do Not Disturb), hide the taskbar clock if you like, and close any window that shows a personal email, bank or employer name.
 7. **Recorder:** OBS or Xbox Game Bar (`Win + Alt + R`), 1080p, microphone on. Do a 5-second test clip and play it back to check the audio.
 
-**Credits:** each CoCo prompt costs real credits (the rehearsal cost about $10–15). Plan for **one take, two at most**. Mistakes get cut in the edit rather than re-recorded.
+**Credits:** each CoCo prompt runs an AI agent and costs real credits (the recording uses 5 prompts). Plan for **one take, two at most**. Mistakes get cut in the edit rather than re-recorded.
 
 ---
 
