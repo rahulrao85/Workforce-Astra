@@ -7,7 +7,9 @@ and up front in the submission brief, not hidden.
 **Status (25-Sep-2026):** core build complete and live-verified — 5 Semantic Views, Cortex Analyst
 clean on all 5, Cortex Search service ACTIVE, 25/25 regression tests, 3 scheduled Tasks, 2 reusable
 CoCo skills, 6-tool mock MCP server, Streamlit portal deployed, one-command rebuild tested on a
-scratch database. Demo video not yet recorded; submission not yet filed.
+scratch database. **26-Sep-2026:** full recording flow rehearsed end to end through CoCo CLI;
+landing page (https://workforce-astra.rahulrao.in) extended with dated Snowflake snapshots of all five
+domains. Demo video not yet recorded; submission not yet filed.
 
 ## One-line pitch
 Off-the-shelf HRMS platforms are rigid and suffer the same metric-divergence problem the
@@ -180,7 +182,9 @@ authored and applied statement-by-statement during development.
 The Streamlit portal is deliberately **not** deployed by this script — deploy it separately from
 `employee_360_portal/` — so a rebuild never silently overwrites a live app.
 
-### Snowflake Marketplace — checked, not used`SHOW DATABASES IN ACCOUNT` / `SHOW SHARES IN ACCOUNT` confirm **no Marketplace listing is installed**
+### Snowflake Marketplace — checked, not used
+
+`SHOW DATABASES IN ACCOUNT` / `SHOW SHARES IN ACCOUNT` confirm **no Marketplace listing is installed**
 on this trial account; the only inbound shares are Snowflake's own (`ACCOUNT_USAGE`,
 `SAMPLE_DATA`). Plausible free compensation listings exist (US salary-by-occupation, O\*Net, an
 explicitly "Free" Australian employment-statistics feed), but **installing one requires accepting the
@@ -206,6 +210,7 @@ personal data is used anywhere** (T&C §5(d)). Nothing here comes from an employ
 | `raw_pay_equity_base`, `pay_equity_cohorts` | derived | Derived in SQL, single employee grain. Ours. |
 | `metric_registry`, `metric_regression_tests`, `metric_test_results`, `governance_alerts` | small | Authored by hand in `sql/07_metric_governance.sql`. Ours. |
 | `site/data.js` | 150 + 127 | A client-side copy of the tables above, so the static landing page can compute the same numbers in a browser. Ours — regenerate from the CSVs, don't hand-edit. |
+| `site/snapshot.js` | — | A dated snapshot of governed numbers exported from the five semantic views (org health, pay equity with suppression applied, employee voice, band health, governance) for the landing page's later sections. Aggregates and synthetic transcripts only. Regenerate with `scripts/export_site_snapshot.py`. Ours. |
 
 Third-party software: **Faker** (MIT) for generation and **`mcp`** (MIT) for the mock MCP server.
 No third-party *dataset* is used, so no third-party data licence applies. If a Snowflake
@@ -259,11 +264,13 @@ afterthought.
 | `sql/08_employee_voice.sql` | Employee voice: transcripts table, **Snowpark Python** `score_voice_transcripts()` (Cortex SENTIMENT + AI_CLASSIFY), `voice_risk_360` cross-signal view, `employee_voice_360` semantic view |
 | `sql/09_band_architecture.sql` | Band architecture: `band_range_health`, `band_range_overlap`, `band_review_findings`, `run_band_review()` (reports, never proposes), `band_health_360` view, quarterly Task |
 | `scripts/rebuild_all.py` | **One-command rebuild** for a fresh trial account — regenerates data, splices `sql/*.sql` in dependency order with the database name substituted, applies via `snow` or CoCo, then scores + audits + tests |
+| `scripts/export_site_snapshot.py` | Exports the landing page snapshot (`site/snapshot.js`) from the semantic views over the key-pair connection. Re-run after any data change so the public page stays accurate |
 | `scripts/test_rebuild_splitter.py` | Offline test for the rebuild's SQL statement splitter (protects `$$` procedure bodies). Run after touching any `sql/` file |
 | `WORKDAY_LLM_PROMPT.md` | Reusable prompt pack so other LLMs can extend the Workday action layer in parallel |
 | `MCP_TOOLS.md` | The 6 mock MCP tool definitions for the closed-loop action |
 | `SUBMISSION_BRIEF.md` | Ready-to-paste MVP brief, states the Employee 360 reframe explicitly |
-| `DEMO_SCRIPT.md` | 3-5 min recording script |
+| `DEMO_SCRIPT.md` | Final recording script: pre-flight, verbatim narration per beat, post-recording and submission steps |
+| `DECK_CONTENT.md` | Slide-by-slide deck content for the Hack2Skill template |
 | `PROMPTS_FOR_AGENTS.md` | Copy-paste prompts for OpenCode and Antigravity |
 | `requirements.txt` | `faker` (data gen) + `mcp` (mock MCP server — 2.x API) |
 
