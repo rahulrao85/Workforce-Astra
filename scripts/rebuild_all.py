@@ -33,8 +33,9 @@ BACKENDS -- AND WHY THERE ARE TWO
     during development.
 
 USAGE
-    # rebuild into the real database (the default)
-    python scripts/rebuild_all.py
+    # rebuild into the real database -- ONLY on a fresh trial account. --live is required,
+    # so running with no flags can't recreate the live database by accident.
+    python scripts/rebuild_all.py --live
 
     # rebuild into a scratch database, verify, then drop it
     python scripts/rebuild_all.py --database WORKFORCE_ASTRA_REBUILD_TEST --drop --yes
@@ -392,7 +393,14 @@ def main() -> int:
                     help="DROP the target database CASCADE first (requires --yes)")
     ap.add_argument("--drop-only", action="store_true", help="just drop the database and exit")
     ap.add_argument("--yes", action="store_true", help="required to confirm --drop / --drop-only")
+    ap.add_argument("--live", action="store_true",
+                    help=f"required for any run that executes against {REAL_DB} (e.g. a fresh trial account)")
     args = ap.parse_args()
+
+    if args.database.upper() == REAL_DB and not args.print_sql and not args.live:
+        sys.exit(f"refusing to run against the live {REAL_DB} database without --live.\n"
+                 f"  rehearse:  --database WORKFORCE_ASTRA_REBUILD_TEST --drop --yes\n"
+                 f"  fresh trial account only:  --live")
 
     if (args.drop or args.drop_only) and not args.yes:
         sys.exit("refusing to DROP a database without --yes")

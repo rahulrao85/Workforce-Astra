@@ -131,15 +131,16 @@ T&C §4.6 gives finalists a new trial if theirs expired — and this one is esti
 requirement rather than a nicety. `scripts/rebuild_all.py` is that button.
 
 ```bash
-# the real thing
-python scripts/rebuild_all.py
+# the real thing -- on a FRESH trial account only. --live is required, so a bare
+# run can never recreate the live database by accident
+python scripts/rebuild_all.py --live
 
 # rehearse it on a throwaway database first, exactly as it was tested
 python scripts/rebuild_all.py --database WORKFORCE_ASTRA_REBUILD_TEST
 python scripts/rebuild_all.py --database WORKFORCE_ASTRA_REBUILD_TEST --drop-only --yes
 
 # drive the build through CoCo CLI instead of snow
-python scripts/rebuild_all.py --backend coco
+python scripts/rebuild_all.py --live --backend coco
 ```
 
 It regenerates and verifies all 4 CSVs, stages them to a space-free path, concatenates `sql/*.sql`
@@ -197,7 +198,7 @@ personal data is used anywhere** (T&C §5(d)). Nothing here comes from an employ
 | `data/raw_compensation_bands.csv` → `raw_compensation_bands` | 5 | Same generator, hand-set band midpoints. Ours. |
 | `data/raw_performance_reviews.csv` → `raw_performance_reviews` | 127 | Same generator; the free-text `review_text` is the only unstructured field. Ours. |
 | `raw_employee_demographics` | 150 | **Not** from a CSV — synthesised deterministically in SQL (`sql/06_pay_equity.sql`) from `HASH(employee_id)`, with a deliberate band-mix skew that creates the unadjusted pay gap honestly. Carries a `synthetic_note` column. Ours. |
-| `data/raw_voice_transcripts.csv` → `raw_voice_transcripts` | 18 | **Hand-authored** stay/exit interview transcripts (`data/generate_voice_transcripts.py`), 51–85 words each, deliberately varied in length/register/ambiguity rather than templated — a templated corpus would make the sentiment and classification results meaningless. The generator seeds each interview onto an employee who already meets the structured flight-risk rule, so the cross-signal is demonstrable. Ours. |
+| `data/raw_voice_transcripts.csv` → `raw_voice_transcripts` | 18 | **Hand-authored** stay/exit interview transcripts (`data/generate_voice_transcripts.py`), 51–85 words each, deliberately varied in length/register/ambiguity rather than templated — a templated corpus would make the sentiment and classification results meaningless. 5 of the 18 interviews are deliberately placed on employees who already meet the structured flight-risk rule (`N_CORROBORATED` in the generator), so the cross-signal is demonstrable; the sentiment scores and reason labels are still the model's own. Ours. |
 | `voice_theme_results` | 18 | Derived by the Snowpark procedure from the transcripts. Ours. |
 | `voice_risk_360` (view) | 18 | Derived: voice results joined to worker, band and review evidence. Ours. |
 | `band_range_health`, `band_range_overlap`, `band_review_findings` | 5 / 4 / 41 | Derived in SQL (`sql/09_band_architecture.sql`) from workers + bands. Ours. |
